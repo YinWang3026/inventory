@@ -4,6 +4,7 @@
 ############################################################
 # NYU: CSCI-GA.2820-001 DevOps and Agile Methodologies 
 # Instructor: John Rofrano
+# Team: Inventory
 ############################################################
 Vagrant.configure(2) do |config|
     # config.vm.box = "ubuntu/focal64"
@@ -108,6 +109,13 @@ Vagrant.configure(2) do |config|
       echo "Creating test database"
       docker exec postgres psql -c "create database testdb;" -U postgres
       # Done
+    SHELL
+
+    ######################################################################
+    # Set the Environment Variables for the App
+    ######################################################################
+    config.vm.provision "shell", inline: <<-SHELL
+      export FLASK_APP=service:app
     SHELL
   
   end

@@ -18,3 +18,17 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   - Running arguments for nosetest
 - .coveragerc
   - Used by Coverage tool
+- config.py
+  - Contains config for SQL Alchemy to set up database connection
+- gunicorn.conf.py
+  - Contains config for gunicorn, a HTTP server
+
+## Running the App
+
+- Clone the project folder
+- "vagrant up" at the project folder root
+- "vagrant ssh" to ssh into the VM
+- "cd /vagrant/" to change directory to project folder root within the VM
+- "flask run" to run the application
+  - No need to do "export FLASK_APP=service:app"
+  - Already done in Vagrantfile
