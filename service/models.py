@@ -44,7 +44,7 @@ class Inventory(db.Model):
     ##################################################
     
     def __repr__(self):
-        return "<prod_Id>" % (self.prod_Id)
+        return "<prod_Id=%r prod_Name=%s available=%s" % (self.prod_Id,self.prod_Name,self.available)
     
     def serialize(self) -> dict:
         """Serializes a each Inventory record into a dictionary"""
