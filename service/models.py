@@ -29,4 +29,41 @@ class DataValidationError(Exception):
     pass
 
 class Inventory(db.Model):
-    pass
+    
+    app:Flask = None
+    
+    # Inventory Schema
+    
+    prod_Id = db.Column(db.Integer, primary_key=True)
+    prod_Name = db.Column(db.String(80), nullable=False)
+    available = db.Column(db.Boolean(), nullable=False, default=False)
+    quantity = db.Column(db.Integer)
+    
+    ##################################################
+    # INSTANCE METHODS
+    ##################################################
+    
+    def __repr__(self):
+        return "<prod_Id=%r prod_Name=%s available=%s" % (self.prod_Id,self.prod_Name,self.available)
+    
+    def serialize(self) -> dict:
+        """Serializes a each Inventory record into a dictionary"""
+        return {
+            "id": self.prod_Id,
+            "name": self.prod_Name,
+            "available": self.available,
+            "quantity": self.quantity,
+        }
+    
+    def deserialize(self, data):
+        """ Deserializes an Inventory record from a dictionary """
+        try:
+            self.product_Id = data["prod_ID"]
+            self.prod_Name = data["prod_Name]
+            self.available = data["available"]
+            self.quantity = data["quantity"]
+        except KeyError as error:
+            raise DataValidationError("Invalid Inventory record: missing " + error.args[0])
+        except TypeError as error:
+            raise DataValidationError("Invalid Inventory record: body of request contained bad or no data")
+        return self
