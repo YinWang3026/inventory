@@ -3,11 +3,11 @@ Inventory Service
 
 Paths:
 ------
-GET /items - Returns a list all of the Items
-GET /items/{id} - Returns the item with a given id number
-POST /items - creates a new item record in the database
-PUT /items/{id} - updates a item record in the database
-DELETE /items/{id} - deletes a item record in the database
+GET /inventory - returns a list all of the inventory
+GET /inventory/{id} - returns the inventory with a given id number
+POST /inventory - creates a new inventory in the database
+PUT /inventory/{id} - updates a inventory with a given id number 
+DELETE /inventory/{id} - deletes a inventory with a given id number 
 """
 
 import os
@@ -35,7 +35,71 @@ def index():
         jsonify(
             name="Inventory REST API Service",
             version="1.0",
-            paths=url_for("list_items", _external=True),
+            paths=url_for("list_inventory", _external=True),
         ),
         status.HTTP_200_OK,
+    )
+
+######################################################################
+# LIST ALL INVENTORY
+######################################################################
+@app.route("/inventory", methods=["GET"])
+def list_inventory():
+    pass
+
+######################################################################
+# RETRIEVE A INVENTORY
+######################################################################
+@app.route("/inventory/<int:inventory_id>", methods=["GET"])
+def get_inventory(inventory_id):
+    pass
+
+######################################################################
+# ADD A NEW INVENTORY
+######################################################################
+@app.route("/inventory", methods=["POST"])
+def create_inventory():
+    """
+    Creates an single Inventory
+    This endpoint will create a Inventory based the data in the body that is posted
+    """
+    app.logger.info("Request to create a inventory")
+    check_content_type("application/json")
+    inventory = Inventory()
+    inventory.deserialize(request.get_json())
+    inventory.create()
+    message = inventory.serialize()
+    location_url = url_for("get_inventory", inventory_id=inventory.id, _external=True)
+
+    app.logger.info("Inventory with ID [%s] created.", inventory.id)
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+    )
+
+######################################################################
+# UPDATE AN EXISTING INVENTORY
+######################################################################
+@app.route("/inventory/<int:inventory_id>", methods=["PUT"])
+def update_inventory(inventory_id):
+    pass 
+
+######################################################################
+# DELETE A INVENTORY
+######################################################################
+@app.route("/inventory/<int:inventory_id>", methods=["DELETE"])
+def delete_inventory(inventory_id):
+    pass 
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+def check_content_type(media_type):
+    """Checks that the media type is correct"""
+    content_type = request.headers.get("Content-Type")
+    if content_type and content_type == media_type:
+        return
+    app.logger.error("Invalid Content-Type: %s", content_type)
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        "Content-Type must be {}".format(media_type),
     )

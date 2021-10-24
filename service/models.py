@@ -5,12 +5,12 @@ All of the models are stored in this module
 
 Models
 ------
-Inventory - An Inventory used keep track of items
+Inventory - An Inventory used keep track of products
 
 Attributes:
 -----------
-item_name (string) - the name of the item
-count (int) - the count of individual items in the inventory
+name (string) - the name of the product
+quantity (int) - the quantity of the product
 
 """
 import logging
@@ -22,6 +22,9 @@ logger = logging.getLogger("flask.app")
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
+def init_db(app):
+    """Initialies the SQLAlchemy app"""
+    Inventory.init_db(app)
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
@@ -34,9 +37,8 @@ class Inventory(db.Model):
     
     # Inventory Schema
     
-    prod_Id = db.Column(db.Integer, primary_key=True)
-    prod_Name = db.Column(db.String(80), nullable=False)
-    available = db.Column(db.Boolean(), nullable=False, default=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
     quantity = db.Column(db.Integer)
     
     ##################################################
@@ -44,26 +46,61 @@ class Inventory(db.Model):
     ##################################################
     
     def __repr__(self):
-        return "<prod_Id=%r prod_Name=%s available=%s" % (self.prod_Id,self.prod_Name,self.available)
+        return "<id=%r name=%s quantity=%s>" % (self.id, self.name, self.quantity)
     
+    def create(self):
+        """
+        Creates a Inventory to the database
+        """
+        logger.info("Creating %s", self.name)
+        self.id = None  # id must be none to generate next primary key
+        db.session.add(self)
+        db.session.commit()
+
     def serialize(self) -> dict:
-        """Serializes a each Inventory record into a dictionary"""
+        """Serializes an Inventory into a dictionary"""
         return {
-            "id": self.prod_Id,
-            "name": self.prod_Name,
-            "available": self.available,
+            "id": self.id,
+            "name": self.name,
             "quantity": self.quantity,
         }
     
     def deserialize(self, data):
-        """ Deserializes an Inventory record from a dictionary """
+        """ 
+        Deserializes a Inventory from a dictionary 
+        Args:
+            data (dict): A dictionary containing the Inventory data
+        """
         try:
-            self.product_Id = data["prod_ID"]
-            self.prod_Name = data["prod_Name]
-            self.available = data["available"]
-            self.quantity = data["quantity"]
+            self.id = data["id"]
+            self.name = data["name"]
+            if isinstance(data["quantity"], int):
+                self.quantity = data["quantity"]
+            else:
+                raise DataValidationError("Invalid type for int [quantity]: " + str(type(data["quantity"])))
+        except AttributeError as error:
+            raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
-            raise DataValidationError("Invalid Inventory record: missing " + error.args[0])
+            raise DataValidationError("Invalid Inventory: missing " + error.args[0])
         except TypeError as error:
-            raise DataValidationError("Invalid Inventory record: body of request contained bad or no data")
+            raise DataValidationError("Invalid Inventory: body of request contained bad or no data")
         return self
+
+    ##################################################
+    # CLASS METHODS
+    ##################################################
+
+    @classmethod
+    def init_db(cls, app:Flask):
+        """Initializes the database session
+
+        :param app: the Flask app
+        :type data: Flask
+
+        """
+        logger.info("Initializing database")
+        cls.app = app
+        # This is where we initialize SQLAlchemy from the Flask app
+        db.init_app(app)
+        app.app_context().push()
+        db.create_all()  # make our sqlalchemy tables
