@@ -66,7 +66,7 @@ class TestInventoryServer(unittest.TestCase):
 		invs = []
 		for _ in range(count):
 			test_inv = InventoryFactory()
-			resp = self.app.post(
+			resp = self.app.post( # Created an inventory using the POST /inventory route
 				BASE_URL, json=test_inv.serialize(), content_type=CONTENT_TYPE_JSON
 			)
 			self.assertEqual(
@@ -99,3 +99,63 @@ class TestInventoryServer(unittest.TestCase):
 		"""Get a Inventory thats not found"""
 		resp = self.app.get("/inventory/0")
 		self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+	def test_create_inventory(self):
+		"""Create a new Inventory"""
+		test_inv = InventoryFactory()
+		logging.debug(test_inv)
+		resp = self.app.post(
+			BASE_URL, json=test_inv.serialize(), content_type=CONTENT_TYPE_JSON
+		)
+		self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+		# Make sure location header is set
+		location = resp.headers.get("Location", None)
+		self.assertIsNotNone(location)
+		# Check the data is correct
+		new_inv = resp.get_json()
+		self.assertEqual(new_inv["name"], test_inv.name, "Name does not match")
+		self.assertEqual(
+			new_inv["quantity"], test_inv.quantity, "Quantity does not match"
+		)
+		# Check that the location header was correct
+		resp = self.app.get(location, content_type=CONTENT_TYPE_JSON)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK)
+		new_inv = resp.get_json()
+		self.assertEqual(new_inv["name"], test_inv.name, "Name does not match")
+		self.assertEqual(
+			new_inv["quantity"], test_inv.quantity, "Quantity does not match"
+		)
+
+	def test_create_inventory_no_data(self):
+		"""Create a Inventory with missing data"""
+		resp = self.app.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
+		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+		# DataValidationError = Bad request
+
+	def test_create_inventory_no_content_type(self):
+		"""Create a Inventory with no content type"""
+		resp = self.app.post(BASE_URL)
+		self.assertEqual(resp.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+	def test_create_inventory_bad_quantity_type(self):
+		""" Create a Inventory with bad quantity type """
+		test_inv = InventoryFactory()
+		logging.debug(test_inv)
+		test_inv.quantity = "100" # Bad type
+		resp = self.app.post(
+			BASE_URL, json=test_inv.serialize(), content_type="application/json"
+		)
+		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+		# DataValidationError = Bad request
+
+	def test_create_inventory_bad_quantity_value(self):
+		""" Create a Inventory with bad quantity value """
+		inv = InventoryFactory()
+		logging.debug(inv)
+		test_inv = inv.serialize()
+		test_inv["quantity"] = -1 # Bad value
+		resp = self.app.post(
+			BASE_URL, json=test_inv, content_type="application/json"
+		)
+		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+		# DataValidationError = Bad request
