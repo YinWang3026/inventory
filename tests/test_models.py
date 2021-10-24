@@ -103,7 +103,7 @@ class TestInventoryModel(unittest.TestCase):
     
     def test_deserialize_missing_data(self):
         """Test deserialization of a Inventory with missing data"""
-        data = {"id": 1, "name": "kitty", "category": "cat"}
+        data = {"id": 1, "quantity": 10} # Missing name
         inv = Inventory()
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
@@ -113,33 +113,25 @@ class TestInventoryModel(unittest.TestCase):
         inv = Inventory()
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
-    def test_deserialize_bad_available(self):
+    def test_deserialize_bad_quantity(self):
         """ Test deserialization of bad available attribute """
         test_inv = InventoryFactory()
         data = test_inv.serialize()
-        data["available"] = "true"
+        data["quantity"] = "10" # Bad quantity
         inv = Inventory()
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
-    def test_deserialize_bad_gender(self):
-        """ Test deserialization of bad gender attribute """
-        test_inv = InventoryFactory()
-        data = test_inv.serialize()
-        data["gender"] = "male" # wrong case
-        inv = Inventory()
-        self.assertRaises(DataValidationError, inv.deserialize, data)
-
-    def test_find_pet(self):
-        """Find a Pet by ID"""
-        pets = PetFactory.create_batch(3)
-        for pet in pets:
-            pet.create()
-        logging.debug(pets)
+    def test_find_inv(self):
+        """Find a Inventory by ID"""
+        invs = InventoryFactory.create_batch(3)
+        for inv in invs:
+            inv.create()
+        logging.debug(invs)
         # make sure they got saved
-        self.assertEqual(len(Pet.all()), 3)
-        # find the 2nd pet in the list
-        pet = Pet.find(pets[1].id)
-        self.assertIsNot(pet, None)
-        self.assertEqual(pet.id, pets[1].id)
-        self.assertEqual(pet.name, pets[1].name)
-        self.assertEqual(pet.available, pets[1].available)
+        self.assertEqual(len(Inventory.all()), 3)
+        # find the 2nd inv in the list
+        inv = Inventory.find(invs[1].id)
+        self.assertIsNot(inv, None)
+        self.assertEqual(inv.id, invs[1].id)
+        self.assertEqual(inv.name, invs[1].name)
+        self.assertEqual(inv.available, invs[1].available)
