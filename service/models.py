@@ -5,7 +5,7 @@ All of the models are stored in this module
 
 Models
 ------
-Product - An Product used keep track of products
+Inventory - An Inventory used keep track of products
 
 Attributes:
 -----------
@@ -24,18 +24,18 @@ db = SQLAlchemy()
 
 def init_db(app):
     """Initialies the SQLAlchemy app"""
-    Product.init_db(app)
+    Inventory.init_db(app)
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
 
     pass
 
-class Product(db.Model):
+class Inventory(db.Model):
     
     app:Flask = None
     
-    # Product Schema
+    # Inventory Schema
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
@@ -50,7 +50,7 @@ class Product(db.Model):
     
     def create(self):
         """
-        Creates a Product to the database
+        Creates a Inventory to the database
         """
         logger.info("Creating %s", self.name)
         self.id = None  # id must be none to generate next primary key
@@ -58,7 +58,7 @@ class Product(db.Model):
         db.session.commit()
 
     def serialize(self) -> dict:
-        """Serializes an Product into a dictionary"""
+        """Serializes an Inventory into a dictionary"""
         return {
             "id": self.id,
             "name": self.name,
@@ -67,9 +67,9 @@ class Product(db.Model):
     
     def deserialize(self, data):
         """ 
-        Deserializes a Product from a dictionary 
+        Deserializes a Inventory from a dictionary 
         Args:
-            data (dict): A dictionary containing the Product data
+            data (dict): A dictionary containing the Inventory data
         """
         try:
             self.id = data["id"]
@@ -81,9 +81,9 @@ class Product(db.Model):
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
-            raise DataValidationError("Invalid Product record: missing " + error.args[0])
+            raise DataValidationError("Invalid Inventory: missing " + error.args[0])
         except TypeError as error:
-            raise DataValidationError("Invalid Product record: body of request contained bad or no data")
+            raise DataValidationError("Invalid Inventory: body of request contained bad or no data")
         return self
 
     ##################################################
