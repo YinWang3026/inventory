@@ -56,7 +56,7 @@ class TestInventoryModel(unittest.TestCase):
 
     def test_create_an_inventory(self):
         """Create an inventory and assert that it exists"""
-        inv = inventory(name="paper", quantity=100)
+        inv = Inventory(name="paper", quantity=100)
         self.assertTrue(inv != None)
         self.assertEqual(inv.id, None)
         self.assertEqual(inv.name, "paper")
@@ -66,7 +66,7 @@ class TestInventoryModel(unittest.TestCase):
         """Create an inventory and add it to the database"""
         inv = Inventory.all()
         self.assertEqual(inv, [])
-        inv = inventory(name="paper", quantity=100)
+        inv = Inventory(name="paper", quantity=100)
         self.assertTrue(inv != None)
         self.assertEqual(inv.id, None)
         inv.create()
@@ -94,10 +94,10 @@ class TestInventoryModel(unittest.TestCase):
             "name": "flower",
             "quantity": 13,
         }
-        inventory = Inventory
+        inventory = Inventory()
         inventory.deserialize(data)
         self.assertNotEqual(inventory, None)
-        self.assertEqual(inventory.id, None)
+        self.assertEqual(inventory.id, 1)
         self.assertEqual(inventory.name, "flower")
         self.assertEqual(inventory.quantity, 13)
     
@@ -113,11 +113,19 @@ class TestInventoryModel(unittest.TestCase):
         inv = Inventory()
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
-    def test_deserialize_bad_quantity(self):
+    def test_deserialize_bad_quantity_type(self):
         """ Test deserialization of bad available attribute """
         test_inv = InventoryFactory()
         data = test_inv.serialize()
-        data["quantity"] = "10" # Bad quantity
+        data["quantity"] = "10" # Bad type
+        inv = Inventory()
+        self.assertRaises(DataValidationError, inv.deserialize, data)
+
+    def test_deserialize_bad_quantity_value(self):
+        """ Test deserialization of bad available attribute """
+        test_inv = InventoryFactory()
+        data = test_inv.serialize()
+        data["quantity"] = -1 # Bad value
         inv = Inventory()
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
@@ -130,8 +138,8 @@ class TestInventoryModel(unittest.TestCase):
         # make sure they got saved
         self.assertEqual(len(Inventory.all()), 3)
         # find the 2nd inv in the list
-        inv = Inventory.find(invs[1].id)
+        inv = Inventory.find(invs[1].id) # Find
         self.assertIsNot(inv, None)
         self.assertEqual(inv.id, invs[1].id)
         self.assertEqual(inv.name, invs[1].name)
-        self.assertEqual(inv.available, invs[1].available)
+        self.assertEqual(inv.quantity, invs[1].quantity)

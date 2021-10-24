@@ -15,6 +15,7 @@ quantity (int) - the quantity of the product
 """
 import logging
 from enum import Enum
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 logger = logging.getLogger("flask.app")
@@ -81,7 +82,10 @@ class Inventory(db.Model):
             self.id = data["id"]
             self.name = data["name"]
             if isinstance(data["quantity"], int):
-                self.quantity = data["quantity"]
+                if data["quantity"] >= 0:
+                    self.quantity = data["quantity"]
+                else:
+                    raise DataValidationError("Invalid value for [quantity>=0]: " + data["quantity"])
             else:
                 raise DataValidationError("Invalid type for int [quantity]: " + str(type(data["quantity"])))
         except AttributeError as error:

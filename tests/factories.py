@@ -14,4 +14,4 @@ class InventoryFactory(factory.Factory):
 
     id = factory.Sequence(lambda n: n)
     name = FuzzyChoice(choices=["chocolate", "noodle", "fan", "computer", "speaker", "pencil"])
-    category = factory.Faker("random_int")
+    quantity = factory.Faker("random_int")

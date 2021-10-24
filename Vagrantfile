@@ -111,12 +111,5 @@ Vagrant.configure(2) do |config|
       # Done
     SHELL
 
-    ######################################################################
-    # Set the Environment Variables for the App
-    ######################################################################
-    config.vm.provision "shell", inline: <<-SHELL
-      export FLASK_APP=service:app
-    SHELL
-  
   end
   
