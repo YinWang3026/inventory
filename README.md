@@ -22,6 +22,8 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   - Contains config for SQL Alchemy to set up database connection
 - gunicorn.conf.py
   - Contains config for gunicorn, a HTTP server
+- Procfile
+  - gunicorn config
 
 ## Running the App
 
