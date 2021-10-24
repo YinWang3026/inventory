@@ -3,11 +3,11 @@ Inventory Service
 
 Paths:
 ------
-GET /items - Returns a list all of the Items
-GET /items/{id} - Returns the item with a given id number
-POST /items - creates a new item record in the database
-PUT /items/{id} - updates a item record in the database
-DELETE /items/{id} - deletes a item record in the database
+GET /products - Returns a list all of the products
+GET /products/{id} - Returns the item with a given id number
+POST /products - creates a new item record in the database
+PUT /products/{id} - updates a item record in the database
+DELETE /products/{id} - deletes a item record in the database
 """
 
 import os
@@ -20,7 +20,7 @@ from werkzeug.exceptions import NotFound
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Inventory, DataValidationError
+from service.models import Product, DataValidationError
 
 # Import Flask application
 from . import app
@@ -35,7 +35,29 @@ def index():
         jsonify(
             name="Inventory REST API Service",
             version="1.0",
-            paths=url_for("list_items", _external=True),
+            paths=url_for("list_products", _external=True),
         ),
         status.HTTP_200_OK,
+    )
+
+######################################################################
+# ADD A NEW PRODUCT
+######################################################################
+@app.route("/products", methods=["POST"])
+def create_products():
+    """
+    Creates an single Product
+    This endpoint will create a Product based the data in the body that is posted
+    """
+    app.logger.info("Request to create a product")
+    check_content_type("application/json")
+    product = Product()
+    product.deserialize(request.get_json())
+    product.create()
+    message = product.serialize()
+    location_url = url_for("get_products", product_id=product.id, _external=True)
+
+    app.logger.info("Product with ID [%s] created.", product.id)
+    return make_response(
+        jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
