@@ -3,11 +3,11 @@ Inventory Service
 
 Paths:
 ------
-GET /products - Returns a list all of the products
-GET /products/{id} - Returns the item with a given id number
-POST /products - creates a new item record in the database
-PUT /products/{id} - updates a item record in the database
-DELETE /products/{id} - deletes a item record in the database
+GET /products - returns a list all of the products
+GET /products/{id} - returns the product with a given id number
+POST /products - creates a new product in the database
+PUT /products/{id} - updates a product with a given id number 
+DELETE /products/{id} - deletes a product with a given id number 
 """
 
 import os
@@ -39,7 +39,7 @@ def index():
         ),
         status.HTTP_200_OK,
     )
-    
+
 ######################################################################
 # LIST ALL PRODUCTS
 ######################################################################
