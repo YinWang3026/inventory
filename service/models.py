@@ -56,6 +56,12 @@ class Inventory(db.Model):
         self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
+    
+    def update(self):
+        pass
+
+    def delete(self):
+        pass
 
     def serialize(self) -> dict:
         """Serializes an Inventory into a dictionary"""
@@ -104,3 +110,23 @@ class Inventory(db.Model):
         db.init_app(app)
         app.app_context().push()
         db.create_all()  # make our sqlalchemy tables
+    
+    @classmethod
+    def all(cls) -> list:
+        """Returns all of the Inventory in the database"""
+        logger.info("Processing all Inventory")
+        return cls.query.all()
+    
+    @classmethod
+    def find(cls, inv_id:int):
+        """Find an Inventory by it's id
+
+        :param inv_id: the id of the Inventory to find
+        :type inv_id: int
+
+        :return: an instance with the inv_id, or None if not found
+        :rtype: Inventory
+
+        """
+        logger.info("Processing lookup for id %s ...", inv_id)
+        return cls.query.get(inv_id)

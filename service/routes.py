@@ -60,9 +60,9 @@ def get_inventory(inventory_id):
     app.logger.info("Request for inventory with id: %s", inventory_id)
     inventory = Inventory.find(inventory_id)
     if not inventory:
-        raise NotFound("Pet with id '{}' was not found.".format(inventory_id))
+        raise NotFound("Inventory with id '{}' was not found.".format(inventory_id))
 
-    app.logger.info("Returning pet: %s", inventory.name)
+    app.logger.info("Returning Inventory: %s", inventory.name)
     return make_response(jsonify(inventory.serialize()), status.HTTP_200_OK)
 
 ######################################################################

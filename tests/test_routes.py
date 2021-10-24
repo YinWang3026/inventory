@@ -29,3 +29,9 @@ DATABASE_URI = os.getenv(
 )
 BASE_URL = "/"
 CONTENT_TYPE_JSON = "application/json"
+
+######################################################################
+#  T E S T   C A S E S
+######################################################################
+class TestInventoryServer(unittest.TestCase):
+  pass
