@@ -39,6 +39,20 @@ def index():
         ),
         status.HTTP_200_OK,
     )
+    
+######################################################################
+# LIST ALL PRODUCTS
+######################################################################
+@app.route("/products", methods=["GET"])
+def list_products():
+    pass
+
+######################################################################
+# RETRIEVE A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>", methods=["GET"])
+def get_products(product_id):
+    pass
 
 ######################################################################
 # ADD A NEW PRODUCT
@@ -60,4 +74,32 @@ def create_products():
     app.logger.info("Product with ID [%s] created.", product.id)
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+    )
+
+######################################################################
+# UPDATE AN EXISTING PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>", methods=["PUT"])
+def update_products(product_id):
+    pass 
+
+######################################################################
+# DELETE A PRODUCT
+######################################################################
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_products(product_id):
+    pass 
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+def check_content_type(media_type):
+    """Checks that the media type is correct"""
+    content_type = request.headers.get("Content-Type")
+    if content_type and content_type == media_type:
+        return
+    app.logger.error("Invalid Content-Type: %s", content_type)
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        "Content-Type must be {}".format(media_type),
     )
