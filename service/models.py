@@ -15,6 +15,7 @@ quantity (int) - the quantity of the product
 """
 import logging
 from enum import Enum
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 logger = logging.getLogger("flask.app")
@@ -56,6 +57,12 @@ class Inventory(db.Model):
         self.id = None  # id must be none to generate next primary key
         db.session.add(self)
         db.session.commit()
+    
+    def update(self):
+        pass
+
+    def delete(self):
+        pass
 
     def serialize(self) -> dict:
         """Serializes an Inventory into a dictionary"""
@@ -75,7 +82,10 @@ class Inventory(db.Model):
             self.id = data["id"]
             self.name = data["name"]
             if isinstance(data["quantity"], int):
-                self.quantity = data["quantity"]
+                if data["quantity"] >= 0:
+                    self.quantity = data["quantity"]
+                else:
+                    raise DataValidationError("Invalid value for [quantity>=0]: " + data["quantity"])
             else:
                 raise DataValidationError("Invalid type for int [quantity]: " + str(type(data["quantity"])))
         except AttributeError as error:
@@ -104,3 +114,23 @@ class Inventory(db.Model):
         db.init_app(app)
         app.app_context().push()
         db.create_all()  # make our sqlalchemy tables
+    
+    @classmethod
+    def all(cls) -> list:
+        """Returns all of the Inventory in the database"""
+        logger.info("Processing all Inventory")
+        return cls.query.all()
+    
+    @classmethod
+    def find(cls, inv_id:int):
+        """Find an Inventory by it's id
+
+        :param inv_id: the id of the Inventory to find
+        :type inv_id: int
+
+        :return: an instance with the inv_id, or None if not found
+        :rtype: Inventory
+
+        """
+        logger.info("Processing lookup for id %s ...", inv_id)
+        return cls.query.get(inv_id)

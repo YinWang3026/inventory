@@ -52,7 +52,18 @@ def list_inventory():
 ######################################################################
 @app.route("/inventory/<int:inventory_id>", methods=["GET"])
 def get_inventory(inventory_id):
-    pass
+    """
+    Retrieve a single Inventory
+
+    This endpoint will return a Inventory based on it's id
+    """
+    app.logger.info("Request for inventory with id: %s", inventory_id)
+    inventory = Inventory.find(inventory_id)
+    if not inventory:
+        raise NotFound("Inventory with id '{}' was not found.".format(inventory_id))
+
+    app.logger.info("Returning Inventory: %s", inventory.name)
+    return make_response(jsonify(inventory.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # ADD A NEW INVENTORY
