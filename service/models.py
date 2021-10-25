@@ -41,7 +41,6 @@ class Inventory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
     quantity = db.Column(db.Integer)
-    available = db.Column(db.Boolean(), nullable=False, default=False)
     
     ##################################################
     # INSTANCE METHODS
