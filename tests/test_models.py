@@ -144,19 +144,23 @@ class TestInventoryModel(unittest.TestCase):
         self.assertEqual(inv.name, invs[1].name)
         self.assertEqual(inv.quantity, invs[1].quantity)
         
-    def test_update(self):
-        " Test update and inventory"
-        product = Inventory(id = 100, name = 'kindle', quantity = 10)
-        if not Inventory.find(product.id, product.name, product.qunatity):
-            prodcut.create()
-        original_id = proudct.id
-        product.update()
-        self.assertEqual(origianl_id, product_id
-        product.id = 101
-        product.name = "kindle-oasis"
-        product.update()
-        all_products = Inventory.all()
-        self.assertEqual(all_products[0].id, 101)
-        self.assertEqual(all_products[0].name, "kindle-oasis")
-        self.assertEqual(len(all_products), 1)
+    def test_update_an_inventory(self):
+        """Update a Inventory"""
+        inv = InventoryFactory()
+        logging.debug(inv)
+        inv.create()
+        logging.debug(inv)
+        self.assertEqual(inv.id, 1)
+        # Change it and save it
+        inv.quantity = 50
+        original_id = inv.id
+        inv.update()
+        self.assertEqual(inv.id, original_id)
+        self.assertEqual(inv.quantity, 50)
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        invs = Inventory.all()
+        self.assertEqual(len(invs), 1)
+        self.assertEqual(invs[0].id, 1)
+        self.assertEqual(invs[0].quantity, 50)
         

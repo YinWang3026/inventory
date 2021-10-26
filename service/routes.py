@@ -14,7 +14,6 @@ import os
 import sys
 import logging
 from flask import Flask, jsonify, request, url_for, make_response, abort
-from flask_restplus import Api
 from . import status  # HTTP Status Codes
 from werkzeug.exceptions import NotFound
 
@@ -22,7 +21,6 @@ from werkzeug.exceptions import NotFound
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
 from service.models import Inventory, DataValidationError
-from service import status
 # Import Flask application
 from . import app
 
@@ -93,19 +91,22 @@ def create_inventory():
 ######################################################################
 @app.route("/inventory/<int:inventory_id>", methods=["PUT"])
 def update_inventory(inventory_id):
-    
-    app.logger.info("Request to update inventory with prod_id: {}", inventory_id)
+    """
+    Update an Inventory
+
+    This endpoint will update an Inventory based the body that is posted
+    """
+    app.logger.info("Request to update inventory with id: %s", inventory_id)
     check_content_type("application/json")
-    product = Inventory.find(inventory_id)
-    if not product:
-        raise NotFound("Product with id '{}' was not found.".format(inventory_id))
-    new_data  = Inventory.deserialise(request.get_json())
-    for key in product.keys():
-        if key in new_data.keys():
-            product[key] = new_data[key]
-    product.update()
-    app.logger.info("Inventory {} updated.", inventory_id)
-    return make_response(jsonify(product.serialize()), status.HTTP_200_OK)
+    inv = Inventory.find(inventory_id)
+    if not inv:
+        raise NotFound("Inventory with id '{}' was not found.".format(inventory_id))
+    inv.deserialize(request.get_json())
+    inv.id = inventory_id
+    inv.update()
+
+    app.logger.info("Inventory with ID [%s] updated.", inv.id)
+    return make_response(jsonify(inv.serialize()), status.HTTP_200_OK)
 
     
 # ######################################################################

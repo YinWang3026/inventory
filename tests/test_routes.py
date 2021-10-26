@@ -161,24 +161,23 @@ class TestInventoryServer(unittest.TestCase):
 		# DataValidationError = Bad request
 		
 	def test_update_inventory(self):
-		""" Update an existing product in inventory """
+		""" Update an existing Inventory """
+		# create an inventory to update
 		test_inv = InventoryFactory()
-		resp = self.app.post(
-			BASE_URL, json=test_inv.serialize(),
-			content_type=CONTENT_TYPE_JSON
+		resp = self.app.post( # Create the inventory
+			BASE_URL, json=test_inv.serialize(), content_type=CONTENT_TYPE_JSON
 		)
 		self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-		
-		# update product in the inventory
-		new_prod = resp.get_json()
-		logging.debug(new_prod)
-		new_prod["name"] = "unknown"
-		key = new_prod["id"]
+
+		# update the inv
+		new_inv = resp.get_json()
+		logging.debug(new_inv)
+		new_inv["quantity"] = 50
 		resp = self.app.put(
-			"/inventory/{}".format(key), 
-			json=test_inv.serialize(), 
-			content_type=CONTENT_TYPE_JSON
+			"/inventory/{}".format(new_inv["id"]),
+			json=new_inv,
+			content_type=CONTENT_TYPE_JSON,
 		)
 		self.assertEqual(resp.status_code, status.HTTP_200_OK)
-		updated_prod = resp.get_json()
-		self.assertEqual(updated_pet["name"], "unknown")
+		updated_inv = resp.get_json()
+		self.assertEqual(updated_inv["quantity"], 50)
