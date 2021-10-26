@@ -143,6 +143,30 @@ class TestInventoryModel(unittest.TestCase):
         self.assertEqual(inv.id, invs[1].id)
         self.assertEqual(inv.name, invs[1].name)
         self.assertEqual(inv.quantity, invs[1].quantity)
+
+    def test_all(self):
+        """Test if all returns all entires"""
+        invs = InventoryFactory.create_batch(3)
+        for inv in invs:
+            inv.create()
+        logging.debug(invs)
+        # make sure they got saved
+        all = Inventory.all()
+        self.assertEqual(len(all), 3)
+        # match all to invs
+        all.sort(key=lambda x:x.id)
+        invs.sort(key=lambda x:x.id)
+        for i in range(0, 3):
+            self.assertEqual(all[i].id, invs[i].id)
+            self.assertEqual(all[i].name, invs[i].name)
+            self.assertEqual(all[i].quantity, invs[i].quantity)
+    
+    def test_repr(self):
+        """Test if __repr__ returns correct repr"""
+        test_inv = InventoryFactory()
+        test_rep = test_inv.__repr__()
+        actual_rep = "<id=%r name=%s quantity=%s>" % (test_inv.id, test_inv.name, test_inv.quantity)
+        self.assertEqual(test_rep, actual_rep)
         
     def test_update_an_inventory(self):
         """Update a Inventory"""
