@@ -62,7 +62,9 @@ class TestInventoryServer(unittest.TestCase):
 		db.drop_all()
 	
 	def _create_invs(self, count):
-		"""Factory method to create invs in bulk"""
+		"""
+  	Factory method to create invs in bulk
+    """
 		invs = []
 		for _ in range(count):
 			test_inv = InventoryFactory()
@@ -169,7 +171,6 @@ class TestInventoryServer(unittest.TestCase):
 		self.assertEqual(len(data), 5)
 		
 	def test_update_inventory(self):
-  		""" Update an existing Inventory """
 		# create an inventory to update
 		test_inv = InventoryFactory()
 		resp = self.app.post( # Create the inventory
@@ -193,7 +194,6 @@ class TestInventoryServer(unittest.TestCase):
 		self.assertEqual(updated_inv["name"], "kindle-oasis")
   
 	def test_delete_inventory(self):
-		""" Delete an existing Inventory """
 		# create an inventory to update
 		test_inv = InventoryFactory()
 		resp = self.app.post( # Create the inventory

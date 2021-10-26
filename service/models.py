@@ -68,7 +68,8 @@ class Inventory(db.Model):
         db.session.commit()
 
     def delete(self):
-        """Removes a product from the data store"""
+        """
+        Removes a product from the data store"""
         logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
