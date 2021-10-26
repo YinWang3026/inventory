@@ -159,3 +159,11 @@ class TestInventoryServer(unittest.TestCase):
 		)
 		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 		# DataValidationError = Bad request
+	
+	def test_get_inv_list(self):
+		"""Get a list of Inventory"""
+		self._create_invs(5)
+		resp = self.app.get(BASE_URL)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK)
+		data = resp.get_json()
+		self.assertEqual(len(data), 5)

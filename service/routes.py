@@ -45,7 +45,12 @@ def index():
 ######################################################################
 @app.route("/inventory", methods=["GET"])
 def list_inventory():
-    pass
+    """Returns all of the Inventory"""
+    app.logger.info("Request for inventory list")
+    invs = Inventory.all()
+    results = [inv.serialize() for inv in invs]
+    app.logger.info("Returning %d invs", len(results))
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A INVENTORY
