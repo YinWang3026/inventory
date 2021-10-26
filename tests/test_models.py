@@ -143,3 +143,20 @@ class TestInventoryModel(unittest.TestCase):
         self.assertEqual(inv.id, invs[1].id)
         self.assertEqual(inv.name, invs[1].name)
         self.assertEqual(inv.quantity, invs[1].quantity)
+        
+    def test_update(self):
+        " Test update and inventory"
+        product = Inventory(id = 100, name = 'kindle', quantity = 10)
+        if not Inventory.find(product.id, product.name, product.qunatity):
+            prodcut.create()
+        original_id = proudct.id
+        product.update()
+        self.assertEqual(origianl_id, product_id
+        product.id = 101
+        product.name = "kindle-oasis"
+        product.update()
+        all_products = Inventory.all()
+        self.assertEqual(all_products[0].id, 101)
+        self.assertEqual(all_products[0].name, "kindle-oasis")
+        self.assertEqual(len(all_products), 1)
+        
