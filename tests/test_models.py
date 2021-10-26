@@ -167,3 +167,26 @@ class TestInventoryModel(unittest.TestCase):
         test_rep = test_inv.__repr__()
         actual_rep = "<id=%r name=%s quantity=%s>" % (test_inv.id, test_inv.name, test_inv.quantity)
         self.assertEqual(test_rep, actual_rep)
+        
+    def test_update_an_inventory(self):
+        """Update a Inventory"""
+        inv = InventoryFactory()
+        logging.debug(inv)
+        inv.create()
+        logging.debug(inv)
+        self.assertEqual(inv.id, 1)
+        # Change it and save it
+        inv.quantity = 101
+        inv.name = "kindle-oasis"
+        original_id = inv.id
+        inv.update()
+        self.assertEqual(inv.id, original_id)
+        self.assertEqual(inv.quantity, 101)
+        self.assertEqual(inv.name, "kindle-oasis")
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        invs = Inventory.all()
+        self.assertEqual(len(invs), 1)
+        self.assertEqual(invs[0].id, 1)
+        self.assertEqual(invs[0].quantity, 101)
+        self.assertEqual(invs[0].name, "kindle-oasis")
