@@ -155,7 +155,7 @@ def delete_inventory(inventory_id):
     if inventory:
         inventory.delete()
     app.logger.info("Inventory with inventory_id {} deleted".format(inventory_id))
-    return make_response(" ", status.HTTP_204_NO_CONTENT)
+    return make_response("", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
