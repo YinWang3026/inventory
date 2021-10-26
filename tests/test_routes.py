@@ -169,7 +169,7 @@ class TestInventoryServer(unittest.TestCase):
 		self.assertEqual(len(data), 5)
 		
 	def test_update_inventory(self):
-		""" Update an existing Inventory """
+  		""" Update an existing Inventory """
 		# create an inventory to update
 		test_inv = InventoryFactory()
 		resp = self.app.post( # Create the inventory
@@ -191,3 +191,22 @@ class TestInventoryServer(unittest.TestCase):
 		updated_inv = resp.get_json()
 		self.assertEqual(updated_inv["quantity"], 50)
 		self.assertEqual(updated_inv["name"], "kindle-oasis")
+  
+	def test_delete_inventory(self):
+		""" Delete an existing Inventory """
+		# create an inventory to update
+		test_inv = InventoryFactory()
+		resp = self.app.post( # Create the inventory
+			BASE_URL, json=test_inv.serialize(), content_type=CONTENT_TYPE_JSON
+		)
+		self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+
+		# Delete the inv
+		new_inv = resp.get_json()
+		logging.debug(new_inv)
+		resp = self.app.delete(
+			"/inventory/{}".format(new_inv["id"]),
+			json=new_inv,
+			content_type=CONTENT_TYPE_JSON,
+		)
+		self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
