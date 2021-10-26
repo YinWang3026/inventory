@@ -59,7 +59,13 @@ class Inventory(db.Model):
         db.session.commit()
     
     def update(self):
-        pass
+        """
+        Updates an Inventory to the database
+        """
+        logger.info("Updating %s", self.name)
+        if not self.id:
+            raise DataValidationError("Update called with empty ID field")
+        db.session.commit()
 
     def delete(self):
         pass
