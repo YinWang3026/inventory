@@ -145,7 +145,17 @@ def update_inventory(inventory_id):
 ######################################################################
 @app.route("/inventory/<int:inventory_id>", methods=["DELETE"])
 def delete_inventory(inventory_id):
-    pass 
+    """
+        Delete a Inventory
+        This endpoint will delete a Inventory based the id specified in the path
+    """
+    app.logger.info("Request to delete the inventory with key {}".format(inventory_id))
+    
+    inventory = Inventory.find(inventory_id)
+    if inventory:
+        inventory.delete()
+    app.logger.info("Inventory with inventory_id {} deleted".format(inventory_id))
+    return make_response(" ", status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
