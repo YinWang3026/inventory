@@ -173,6 +173,7 @@ class TestInventoryServer(unittest.TestCase):
 		new_inv = resp.get_json()
 		logging.debug(new_inv)
 		new_inv["quantity"] = 50
+		new_inv["name"] = "kindle-oasis"
 		resp = self.app.put(
 			"/inventory/{}".format(new_inv["id"]),
 			json=new_inv,
@@ -181,3 +182,4 @@ class TestInventoryServer(unittest.TestCase):
 		self.assertEqual(resp.status_code, status.HTTP_200_OK)
 		updated_inv = resp.get_json()
 		self.assertEqual(updated_inv["quantity"], 50)
+		self.assertEqual(updated_inv["name"], "kindle-oasis")

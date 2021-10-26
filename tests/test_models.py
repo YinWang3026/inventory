@@ -152,15 +152,17 @@ class TestInventoryModel(unittest.TestCase):
         logging.debug(inv)
         self.assertEqual(inv.id, 1)
         # Change it and save it
-        inv.quantity = 50
+        inv.quantity = 101
+        inv.name = "kindle-oasis"
         original_id = inv.id
         inv.update()
         self.assertEqual(inv.id, original_id)
-        self.assertEqual(inv.quantity, 50)
+        self.assertEqual(inv.quantity, 101)
+        self.assertEqual(inv.name, "kindle-oasis")
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         invs = Inventory.all()
         self.assertEqual(len(invs), 1)
         self.assertEqual(invs[0].id, 1)
-        self.assertEqual(invs[0].quantity, 50)
-        
+        self.assertEqual(invs[0].quantity, 101)
+        self.assertEqual(invs[0].name, "kindle-oasis")
