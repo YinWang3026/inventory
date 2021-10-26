@@ -59,7 +59,11 @@ class Inventory(db.Model):
         db.session.commit()
     
     def update(self):
-        pass
+        """
+        Updates an Inventory record to the database
+        """
+        logger.info("Updating {}".format(self.id))
+        db.session.commit()
 
     def delete(self):
         pass
