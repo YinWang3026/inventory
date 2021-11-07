@@ -1,3 +1,4 @@
+[![Run Python Tests](https://github.com/Inventory-Devops-Fall21/inventory/actions/workflows/workflow.yml/badge.svg)](https://github.com/Inventory-Devops-Fall21/inventory/actions/workflows/workflow.yml)
 [![codecov](https://codecov.io/gh/Inventory-Devops-Fall21/inventory/branch/main/graph/badge.svg?token=8LLHNZEGQZ)](https://codecov.io/gh/Inventory-Devops-Fall21/inventory)
 
 # Inventory
