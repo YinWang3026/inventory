@@ -1,6 +1,10 @@
+[![codecov](https://codecov.io/gh/Inventory-Devops-Fall21/inventory/branch/main/graph/badge.svg?token=8LLHNZEGQZ)](https://codecov.io/gh/Inventory-Devops-Fall21/inventory)
+
 # Inventory
 
 This repository contains all the work of the Inventory Squad as part of the Fall '21 DevOps under [John Rofrano](https://github.com/rofrano).
+
+## To contribute, checkout [contribution.md](./contributing.md)
 
 ## File Descritions
 
