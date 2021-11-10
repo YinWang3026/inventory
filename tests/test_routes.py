@@ -8,11 +8,13 @@ Test cases can be run with the following:
 
 """
 
-import os
+# import os
 import logging
 import unittest
 
-from urllib.parse import quote_plus
+from flask.json import jsonify
+
+# from urllib.parse import quote_plus
 from service import status  # HTTP Status Codes
 from service.models import db, init_db
 from service.routes import app
@@ -24,7 +26,6 @@ from config import DATABASE_URI
 # uncomment for debugging failing tests
 logging.disable(logging.CRITICAL)
 
-# DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///../db/test.db')
 BASE_URL = "/inventory"
 CONTENT_TYPE_JSON = "application/json"
 
@@ -265,3 +266,52 @@ class TestInventoryServer(unittest.TestCase):
 		)
 		self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 		self.assertEqual(len(resp.data), 0)
+
+	def test_add_stock(self):
+		""""Increase the stock of an existing inventory"""
+		inv = self._create_invs(1)[0] # Create 1 inventory and added it to database
+		data = {"add_stock" : 50} # Create JSON for add_stock
+		resp = self.app.put( # Action to update stock
+			"/inventory/{}/add_stock".format(inv.id),
+			json=data,
+			content_type=CONTENT_TYPE_JSON,
+		)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK)
+		
+		updated_inv = resp.get_json() # Updated Inventory is returned as JSON
+		self.assertEqual(updated_inv["id"], inv.id)
+		self.assertEqual(updated_inv["name"], inv.name)
+		self.assertEqual(updated_inv["quantity"], inv.quantity+data["add_stock"]) # Check stock updated
+		self.assertEqual(updated_inv["condition"], inv.condition.name)
+		self.assertEqual(updated_inv["restock_level"], inv.restock_level)
+
+	def test_add_stock_no_inv(self):
+		""""Increase the stock of a non-existing inventory"""
+		data = {"add_stock" : 50} # Create JSON for add_stock
+		resp = self.app.put( # Action to update stock
+			"/inventory/{}/add_stock".format(10),
+			json=data,
+			content_type=CONTENT_TYPE_JSON,
+		)
+		self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+		
+	def test_missing_add_stock(self):
+		""""Increase the stock of an existing inventory without add_stock"""
+		inv = self._create_invs(1)[0] # Create 1 inventory and added it to database
+		resp = self.app.put( # Action to update stock
+			"/inventory/{}/add_stock".format(inv.id),
+			json={},
+			content_type=CONTENT_TYPE_JSON,
+		)
+		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+	
+	def test_add_stock_bad_value(self):
+		""""Increase the stock of an existing inventory"""
+		inv = self._create_invs(1)[0] # Create 1 inventory and added it to database
+		data = {"add_stock" : -50} # Create JSON for add_stock
+		resp = self.app.put( # Action to update stock
+			"/inventory/{}/add_stock".format(inv.id),
+			json=data,
+			content_type=CONTENT_TYPE_JSON,
+		)
+		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
