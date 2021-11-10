@@ -61,7 +61,8 @@ class TestInventoryServer(unittest.TestCase):
 	
 	def _create_invs(self, count):
 		"""
-		Factory method to create invs in bulk
+		Factory method to create invs in database in bulk
+		Returns the created inventory in a list
 		"""
 		invs = []
 		for _ in range(count):
@@ -93,7 +94,11 @@ class TestInventoryServer(unittest.TestCase):
 		)
 		self.assertEqual(resp.status_code, status.HTTP_200_OK)
 		data = resp.get_json()
+		self.assertEqual(data["id"], test_inv.id)
 		self.assertEqual(data["name"], test_inv.name)
+		self.assertEqual(data["quantity"], test_inv.quantity)
+		self.assertEqual(data["condition"], test_inv.condition.name)
+		self.assertEqual(data["restock_level"], test_inv.restock_level)
 
 	def test_get_inventory_not_found(self):
 		"""Get a Inventory thats not found"""
@@ -103,6 +108,7 @@ class TestInventoryServer(unittest.TestCase):
 	def test_create_inventory(self):
 		"""Create a new Inventory"""
 		test_inv = InventoryFactory()
+		test_inv.id = None
 		logging.debug(test_inv)
 		resp = self.app.post(
 			BASE_URL, json=test_inv.serialize(), content_type=CONTENT_TYPE_JSON
@@ -112,19 +118,21 @@ class TestInventoryServer(unittest.TestCase):
 		location = resp.headers.get("Location", None)
 		self.assertIsNotNone(location)
 		# Check the data is correct
-		new_inv = resp.get_json()
-		self.assertEqual(new_inv["name"], test_inv.name, "Name does not match")
-		self.assertEqual(
-			new_inv["quantity"], test_inv.quantity, "Quantity does not match"
-		)
+		data = resp.get_json()
+		inv_id = data["id"] # ID gets updated when creating in database
+		self.assertEqual(data["name"], test_inv.name)
+		self.assertEqual(data["quantity"], test_inv.quantity)
+		self.assertEqual(data["condition"], test_inv.condition.name)
+		self.assertEqual(data["restock_level"], test_inv.restock_level)
 		# Check that the location header was correct
 		resp = self.app.get(location, content_type=CONTENT_TYPE_JSON)
 		self.assertEqual(resp.status_code, status.HTTP_200_OK)
-		new_inv = resp.get_json()
-		self.assertEqual(new_inv["name"], test_inv.name, "Name does not match")
-		self.assertEqual(
-			new_inv["quantity"], test_inv.quantity, "Quantity does not match"
-		)
+		data = resp.get_json()
+		self.assertEqual(data["id"], inv_id, "Location")
+		self.assertEqual(data["name"], test_inv.name)
+		self.assertEqual(data["quantity"], test_inv.quantity)
+		self.assertEqual(data["condition"], test_inv.condition.name)
+		self.assertEqual(data["restock_level"], test_inv.restock_level)
 
 	def test_create_inventory_no_data(self):
 		"""Create a Inventory with missing data"""
@@ -160,6 +168,29 @@ class TestInventoryServer(unittest.TestCase):
 		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 		# DataValidationError = Bad request
 	
+	def test_create_inventory_bad_restock_type(self):
+		""" Create a Inventory with bad restock_level type """
+		test_inv = InventoryFactory()
+		logging.debug(test_inv)
+		test_inv.restock_level = "100" # Bad type
+		resp = self.app.post(
+			BASE_URL, json=test_inv.serialize(), content_type="application/json"
+		)
+		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+		# DataValidationError = Bad request
+
+	def test_create_inventory_bad_restock_value(self):
+		""" Create a Inventory with bad restock_level value """
+		inv = InventoryFactory()
+		logging.debug(inv)
+		test_inv = inv.serialize()
+		test_inv["restock_level"] = -1 # Bad value
+		resp = self.app.post(
+			BASE_URL, json=test_inv, content_type="application/json"
+		)
+		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+		# DataValidationError = Bad request
+
 	def test_get_inv_list(self):
 		"""Get a list of Inventory"""
 		self._create_invs(5)
@@ -178,19 +209,22 @@ class TestInventoryServer(unittest.TestCase):
 		self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
 
 		# update the inv
-		new_inv = resp.get_json()
-		logging.debug(new_inv)
-		new_inv["quantity"] = 50
-		new_inv["name"] = "kindle-oasis"
+		data = resp.get_json()
+		logging.debug(data)
+		data["quantity"] = 50
+		data["name"] = "kindle-oasis"
 		resp = self.app.put(
-			"/inventory/{}".format(new_inv["id"]),
-			json=new_inv,
+			"/inventory/{}".format(data["id"]),
+			json=data,
 			content_type=CONTENT_TYPE_JSON,
 		)
 		self.assertEqual(resp.status_code, status.HTTP_200_OK)
 		updated_inv = resp.get_json()
-		self.assertEqual(updated_inv["quantity"], 50)
-		self.assertEqual(updated_inv["name"], "kindle-oasis")
+		self.assertEqual(data["id"], updated_inv["id"])
+		self.assertEqual(data["name"], updated_inv["name"])
+		self.assertEqual(data["quantity"], updated_inv["quantity"])
+		self.assertEqual(data["condition"], updated_inv["condition"])
+		self.assertEqual(data["restock_level"], updated_inv["restock_level"])
 
 	def test_update_inventory_not_found(self):
 		"""Update a non-existing Inventory"""
@@ -217,7 +251,16 @@ class TestInventoryServer(unittest.TestCase):
 		logging.debug(new_inv)
 		resp = self.app.delete(
 			"/inventory/{}".format(new_inv["id"]),
-			json=new_inv,
+			content_type=CONTENT_TYPE_JSON,
+		)
+		self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+		self.assertEqual(len(resp.data), 0)
+
+	def test_delete_empty_inventory(self):
+		"""Delete an Inventory that does not exist"""
+		# Delete the inv
+		resp = self.app.delete(
+			"/inventory/{}".format(10),
 			content_type=CONTENT_TYPE_JSON,
 		)
 		self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)

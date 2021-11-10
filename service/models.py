@@ -115,7 +115,7 @@ class Inventory(db.Model):
         try:
             self.id = data["id"]
             self.name = data["name"]
-            self.condition = getattr(Condition, data["condition"])
+            self.condition = getattr(Condition, data["condition"]) # string to enmu
             if isinstance(data["quantity"], int) and data["quantity"] >= 0:
                 self.quantity = data["quantity"]
             else:
