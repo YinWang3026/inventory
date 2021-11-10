@@ -11,14 +11,11 @@ import os
 import logging
 import unittest
 from werkzeug.exceptions import NotFound
-from service.models import Inventory, DataValidationError, db
+from service.models import Condition, Inventory, DataValidationError, db
 from service import app
 from .factories import InventoryFactory
 
-DATABASE_URI = os.getenv(
-    "DATABASE_URI",
-    "postgres://postgres:postgres@localhost:5432/postgres"
-)
+from config import DATABASE_URI
 
 ######################################################################
 #  I N V E N T O R Y   M O D E L   T E S T   C A S E S
@@ -56,23 +53,35 @@ class TestInventoryModel(unittest.TestCase):
 
     def test_create_an_inventory(self):
         """Create an inventory and assert that it exists"""
-        inv = Inventory(name="paper", quantity=100)
+        inv = Inventory(
+            name="paper", 
+            quantity=100,
+            condition=Condition.new.name,
+            restock_level=50
+        )
         self.assertTrue(inv != None)
         self.assertEqual(inv.id, None)
         self.assertEqual(inv.name, "paper")
         self.assertEqual(inv.quantity, 100)
+        self.assertEqual(inv.condition, Condition.new.name)
+        self.assertEqual(inv.restock_level, 50)
 
     def test_add_an_inventory(self):
         """Create an inventory and add it to the database"""
-        inv = Inventory.all()
+        inv = Inventory.find_all()
         self.assertEqual(inv, [])
-        inv = Inventory(name="paper", quantity=100)
+        inv = Inventory(
+            name="paper", 
+            quantity=100,
+            condition=Condition.new.name,
+            restock_level=50
+        )
         self.assertTrue(inv != None)
         self.assertEqual(inv.id, None)
         inv.create()
         # Asert that it was assigned an id and shows up in the database
         self.assertEqual(inv.id, 1)
-        invs = Inventory.all()
+        invs = Inventory.find_all()
         self.assertEqual(len(invs), 1)
     
     def test_serialize(self):
@@ -86,6 +95,10 @@ class TestInventoryModel(unittest.TestCase):
         self.assertEqual(data["name"], inventory.name)
         self.assertIn("quantity", data)
         self.assertEqual(data["quantity"], inventory.quantity)
+        self.assertIn("condition", data)
+        self.assertEqual(data["condition"], inventory.condition.name)
+        self.assertIn("restock_level", data)
+        self.assertEqual(data["restock_level"], inventory.restock_level)
 
     def test_deserialize(self):
         """Test deserialization of an item"""
@@ -93,6 +106,8 @@ class TestInventoryModel(unittest.TestCase):
             "id": 1,
             "name": "flower",
             "quantity": 13,
+            "restock_level": 5,
+            "condition": "used"
         }
         inventory = Inventory()
         inventory.deserialize(data)
@@ -100,6 +115,8 @@ class TestInventoryModel(unittest.TestCase):
         self.assertEqual(inventory.id, 1)
         self.assertEqual(inventory.name, "flower")
         self.assertEqual(inventory.quantity, 13)
+        self.assertEqual(inventory.restock_level, 5)
+        self.assertEqual(inventory.condition, Condition.used)
     
     def test_deserialize_missing_data(self):
         """Test deserialization of a Inventory with missing data"""
@@ -114,7 +131,7 @@ class TestInventoryModel(unittest.TestCase):
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
     def test_deserialize_bad_quantity_type(self):
-        """ Test deserialization of bad available attribute """
+        """ Test deserialization of bad quantity type """
         test_inv = InventoryFactory()
         data = test_inv.serialize()
         data["quantity"] = "10" # Bad type
@@ -122,10 +139,26 @@ class TestInventoryModel(unittest.TestCase):
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
     def test_deserialize_bad_quantity_value(self):
-        """ Test deserialization of bad available attribute """
+        """ Test deserialization of bad quantity value """
         test_inv = InventoryFactory()
         data = test_inv.serialize()
         data["quantity"] = -1 # Bad value
+        inv = Inventory()
+        self.assertRaises(DataValidationError, inv.deserialize, data)
+
+    def test_deserialize_bad_restock_type(self):
+        """ Test deserialization of bad restock type """
+        test_inv = InventoryFactory()
+        data = test_inv.serialize()
+        data["restock_level"] = "5" # Bad value
+        inv = Inventory()
+        self.assertRaises(DataValidationError, inv.deserialize, data)
+
+    def test_deserialize_bad_restock_value(self):
+        """ Test deserialization of bad restock value """
+        test_inv = InventoryFactory()
+        data = test_inv.serialize()
+        data["restock_level"] = -1 # Bad value
         inv = Inventory()
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
@@ -136,13 +169,15 @@ class TestInventoryModel(unittest.TestCase):
             inv.create()
         logging.debug(invs)
         # make sure they got saved
-        self.assertEqual(len(Inventory.all()), 3)
+        self.assertEqual(len(Inventory.find_all()), 3)
         # find the 2nd inv in the list
-        inv = Inventory.find(invs[1].id) # Find
+        inv = Inventory.find_by_id(invs[1].id) # Find
         self.assertIsNot(inv, None)
         self.assertEqual(inv.id, invs[1].id)
         self.assertEqual(inv.name, invs[1].name)
         self.assertEqual(inv.quantity, invs[1].quantity)
+        self.assertEqual(inv.restock_level, invs[1].restock_level)
+        self.assertEqual(inv.condition, invs[1].condition)
 
     def test_all(self):
         """Test if all returns all entires"""
@@ -151,7 +186,7 @@ class TestInventoryModel(unittest.TestCase):
             inv.create()
         logging.debug(invs)
         # make sure they got saved
-        all = Inventory.all()
+        all = Inventory.find_all()
         self.assertEqual(len(all), 3)
         # match all to invs
         all.sort(key=lambda x:x.id)
@@ -160,16 +195,19 @@ class TestInventoryModel(unittest.TestCase):
             self.assertEqual(all[i].id, invs[i].id)
             self.assertEqual(all[i].name, invs[i].name)
             self.assertEqual(all[i].quantity, invs[i].quantity)
+            self.assertEqual(all[i].restock_level, invs[i].restock_level)
+            self.assertEqual(all[i].condition, invs[i].condition)
     
     def test_repr(self):
-        """Test if __repr__ returns correct repr"""
+        """Test __repr__"""
         test_inv = InventoryFactory()
         test_rep = test_inv.__repr__()
-        actual_rep = "<id=%r name=%s quantity=%s>" % (test_inv.id, test_inv.name, test_inv.quantity)
+        actual_rep = "<id=%r name=%s quantity=%d condition=%s restock_level=%d>" % \
+            (test_inv.id, test_inv.name, test_inv.quantity, test_inv.condition.name, test_inv.restock_level)
         self.assertEqual(test_rep, actual_rep)
         
     def test_update_an_inventory(self):
-        """Update a Inventory"""
+        """Test update an Inventory"""
         inv = InventoryFactory()
         logging.debug(inv)
         inv.create()
@@ -178,15 +216,24 @@ class TestInventoryModel(unittest.TestCase):
         # Change it and save it
         inv.quantity = 101
         inv.name = "kindle-oasis"
+        inv.condition = Condition.unknown
         original_id = inv.id
         inv.update()
         self.assertEqual(inv.id, original_id)
         self.assertEqual(inv.quantity, 101)
         self.assertEqual(inv.name, "kindle-oasis")
+        self.assertEqual(inv.condition, Condition.unknown)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
-        invs = Inventory.all()
+        invs = Inventory.find_all()
         self.assertEqual(len(invs), 1)
         self.assertEqual(invs[0].id, 1)
         self.assertEqual(invs[0].quantity, 101)
         self.assertEqual(invs[0].name, "kindle-oasis")
+        self.assertEqual(invs[0].condition, Condition.unknown)
+
+    def test_update_no_id(self):
+        """Test update an Inventory without id"""
+        test_inv = InventoryFactory()
+        test_inv.id = None
+        self.assertRaises(DataValidationError, test_inv.update)
