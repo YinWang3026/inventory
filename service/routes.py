@@ -45,9 +45,9 @@ def index():
 ######################################################################
 @app.route("/inventory", methods=["GET"])
 def list_inventory():
-    """Returns all of the Inventory"""
+    """ Returns all of the Inventory """
     app.logger.info("Request for inventory list")
-    invs = Inventory.all()
+    invs = Inventory.find_all()
     results = [inv.serialize() for inv in invs]
     app.logger.info("Returning %d invs", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
@@ -55,17 +55,16 @@ def list_inventory():
 ######################################################################
 # RETRIEVE A INVENTORY
 ######################################################################
-@app.route("/inventory/<int:inventory_id>", methods=["GET"])
-def get_inventory(inventory_id):
+@app.route("/inventory/<int:id>", methods=["GET"])
+def get_inventory(id):
     """
     Retrieve a single Inventory
-
     This endpoint will return a Inventory based on it's id
     """
-    app.logger.info("Request for inventory with id: %s", inventory_id)
-    inventory = Inventory.find(inventory_id)
+    app.logger.info("Request for inventory with id: %s", id)
+    inventory = Inventory.find_by_id(id)
     if not inventory:
-        raise NotFound("Inventory with id '{}' was not found.".format(inventory_id))
+        raise NotFound("Inventory with id '{}' was not found.".format(id))
 
     app.logger.info("Returning Inventory: %s", inventory.name)
     return make_response(jsonify(inventory.serialize()), status.HTTP_200_OK)
@@ -85,7 +84,7 @@ def create_inventory():
     inventory.deserialize(request.get_json())
     inventory.create()
     message = inventory.serialize()
-    location_url = url_for("get_inventory", inventory_id=inventory.id, _external=True)
+    location_url = url_for("get_inventory", id=inventory.id, _external=True)
 
     app.logger.info("Inventory with ID [%s] created.", inventory.id)
     return make_response(
@@ -95,28 +94,59 @@ def create_inventory():
 ######################################################################
 # UPDATE AN EXISTING INVENTORY
 ######################################################################
-@app.route("/inventory/<int:inventory_id>", methods=["PUT"])
-def update_inventory(inventory_id):
+@app.route("/inventory/<int:id>", methods=["PUT"])
+def update_inventory(id):
     """
     Update an Inventory
-
     This endpoint will update an Inventory based the body that is posted
     """
-    app.logger.info("Request to update inventory with id: %s", inventory_id)
+    app.logger.info("Request to update inventory with id: %s", id)
     check_content_type("application/json")
-    inv = Inventory.find(inventory_id)
+    inv = Inventory.find_by_id(id)
     if not inv:
-        raise NotFound("Inventory with id '{}' was not found.".format(inventory_id))
+        raise NotFound("Inventory with id '{}' was not found.".format(id))
     inv.deserialize(request.get_json())
-    inv.id = inventory_id
+    inv.id = id
     inv.update()
 
     app.logger.info("Inventory with ID [%s] updated.", inv.id)
     return make_response(jsonify(inv.serialize()), status.HTTP_200_OK)
 
+######################################################################
+# DELETE A INVENTORY
+######################################################################
+@app.route("/inventory/<int:id>", methods=["DELETE"])
+def delete_inventory(id):
+    """
+    Delete a Inventory
+    This endpoint will delete a Inventory based the id specified in the path
+    """
+    app.logger.info("Request to delete the inventory with key {}".format(id))
     
+    inventory = Inventory.find_by_id(id)
+    if inventory:
+        inventory.delete()
+    app.logger.info("Inventory with id {} deleted".format(id))
+    return make_response("", status.HTTP_204_NO_CONTENT)
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+def check_content_type(media_type):
+    """
+    Checks that the media type is correct
+    """
+    content_type = request.headers.get("Content-Type")
+    if content_type and content_type == media_type:
+        return
+    app.logger.error("Invalid Content-Type: %s", content_type)
+    abort(
+        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        "Content-Type must be {}".format(media_type),
+    )
+
 # ######################################################################
-# # UPDATE AN EXISTING INVENTORY QUNATITY 
+# # UPDATE AN EXISTING INVENTORY QUNATITY ACTION
 # ######################################################################
 # @app.route("/inventory/<int:inventory_id>/add_stock", methods=["PUT"])
 # def update_inventory(inventory_id):
@@ -139,34 +169,3 @@ def update_inventory(inventory_id):
 #     product.update()
 #     app.logger.info("Inventory {} updated.", inventory_id) 
 #     return make_response(jsonify(product.serialize()), status.HTTP_200_OK)
-
-######################################################################
-# DELETE A INVENTORY
-######################################################################
-@app.route("/inventory/<int:inventory_id>", methods=["DELETE"])
-def delete_inventory(inventory_id):
-    """
-        Delete a Inventory
-        This endpoint will delete a Inventory based the id specified in the path
-    """
-    app.logger.info("Request to delete the inventory with key {}".format(inventory_id))
-    
-    inventory = Inventory.find(inventory_id)
-    if inventory:
-        inventory.delete()
-    app.logger.info("Inventory with inventory_id {} deleted".format(inventory_id))
-    return make_response("", status.HTTP_204_NO_CONTENT)
-
-######################################################################
-#  U T I L I T Y   F U N C T I O N S
-######################################################################
-def check_content_type(media_type):
-    """Checks that the media type is correct"""
-    content_type = request.headers.get("Content-Type")
-    if content_type and content_type == media_type:
-        return
-    app.logger.error("Invalid Content-Type: %s", content_type)
-    abort(
-        status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        "Content-Type must be {}".format(media_type),
-    )

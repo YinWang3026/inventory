@@ -17,6 +17,7 @@ if 'VCAP_SERVICES' in os.environ:
     DATABASE_URI = vcap['user-provided'][0]['credentials']['url']
 
 # Configure SQLAlchemy
+# Neither SQLALCHEMY_DATABASE_URI nor SQLALCHEMY_BINDS is set, then defaulting SQLALCHEMY_DATABASE_URI to "sqlite:///:memory:".
 SQLALCHEMY_DATABASE_URI = DATABASE_URI
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
