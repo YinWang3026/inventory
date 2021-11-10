@@ -61,8 +61,8 @@ class TestInventoryServer(unittest.TestCase):
 	
 	def _create_invs(self, count):
 		"""
-  	Factory method to create invs in bulk
-    """
+		Factory method to create invs in bulk
+		"""
 		invs = []
 		for _ in range(count):
 			test_inv = InventoryFactory()

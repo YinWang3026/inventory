@@ -11,7 +11,7 @@ from flask import Flask
 
 # Create Flask application
 app = Flask(__name__)
-app.config.from_object("config")
+app.config.from_object("config") # loads config.py
 
 # Import the routes after the Flask app is created
 from service import routes, models, error_handlers
