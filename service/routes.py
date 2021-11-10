@@ -144,3 +144,28 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         "Content-Type must be {}".format(media_type),
     )
+
+# ######################################################################
+# # UPDATE AN EXISTING INVENTORY QUNATITY ACTION
+# ######################################################################
+# @app.route("/inventory/<int:inventory_id>/add_stock", methods=["PUT"])
+# def update_inventory(inventory_id):
+    
+#     app.logger.info("Request to update inventory with prod_id: {}", inventory_id)
+#     check_content_type("application/json")
+#     product = Inventory.find(inventory_id)
+#     if not product:
+#         raise NotFound("Product with id '{}' was not found.".format(inventory_id))
+#     new_data  = Inventory.deserialise(request.get_json())
+#     if "add_stock" not in new_data.keys():
+#         abort("The quantity to update the stock is missing", status.HTTP_400_BAD_REQUEST)
+        
+#     quant_to_add = new_data[add_stock]
+#     typ = type(quant_to_add)
+#     if count <= 0 or (int != typ): 
+#         abort("Invalid type of quantity or invalid number requesting to add to the stock", status.HTTP_400_BAD_REQUEST)
+        
+#     product.quantity += quant_to_add
+#     product.update()
+#     app.logger.info("Inventory {} updated.", inventory_id) 
+#     return make_response(jsonify(product.serialize()), status.HTTP_200_OK)
