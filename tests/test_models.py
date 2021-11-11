@@ -162,7 +162,7 @@ class TestInventoryModel(unittest.TestCase):
         inv = Inventory()
         self.assertRaises(DataValidationError, inv.deserialize, data)
 
-    def test_find_inv(self):
+    def test_find_by_id(self):
         """Find a Inventory by ID"""
         invs = InventoryFactory.create_batch(3)
         for inv in invs:
@@ -179,8 +179,8 @@ class TestInventoryModel(unittest.TestCase):
         self.assertEqual(inv.restock_level, invs[1].restock_level)
         self.assertEqual(inv.condition, invs[1].condition)
 
-    def test_all(self):
-        """Test if all returns all entires"""
+    def test_find_all(self):
+        """Test if find_all returns all entires"""
         invs = InventoryFactory.create_batch(3)
         for inv in invs:
             inv.create()
@@ -237,3 +237,68 @@ class TestInventoryModel(unittest.TestCase):
         test_inv = InventoryFactory()
         test_inv.id = None
         self.assertRaises(DataValidationError, test_inv.update)
+
+    def test_find_by_name(self):
+        """Returns all inv with the name"""
+        invs = InventoryFactory.create_batch(4)
+        # Change inv[0],[1] to "DevOps"
+        invs[0].name = "DevOps"
+        invs[1].name = "DevOps"
+        # Create the invs in Inventory
+        for i in range(0, len(invs)):
+            invs[i].create() 
+        result = Inventory.find_by_name("DevOps") # Query
+        invs_list = [inv for inv in result] # Convert to list
+        self.assertEqual(len(invs_list), 2) # Should get 2 items back
+    
+    def test_find_by_name_empty(self):
+        """Test find by name does not exist"""
+        result = Inventory.find_by_name("") # Query
+        invs_list = [inv for inv in result] # Convert to list
+        self.assertEqual(len(invs_list), 0) # Should get 0 items back
+
+    def test_find_by_need_restock(self):
+        """Returns all inv that needs restock"""
+        invs = InventoryFactory.create_batch(4)
+        # Change inv[0],[1] quantity to below restock_level
+        # Change inv[2],[3] quantity to above restock_level
+        invs[0].quantity = 5
+        invs[0].restock_level = 10
+        invs[1].quantity = 10
+        invs[1].restock_level = 10
+        invs[2].quantity = 11
+        invs[2].restock_level = 10
+        invs[3].quantity = 12
+        invs[3].restock_level = 10
+        # Create the invs in Inventory
+        for i in range(0, len(invs)):
+            invs[i].create() 
+        result = Inventory.find_by_need_restock() # Query
+        invs_list = [inv for inv in result] # Convert to list
+        self.assertEqual(len(invs_list), 2) # Should get 2 items back
+
+    def test_find_by_condition(self):
+        """Returns all inv with the condition"""
+        invs = InventoryFactory.create_batch(4)
+        invs[0].condition = Condition.new
+        invs[1].condition = Condition.slightly_used
+        invs[2].condition = Condition.used
+        invs[3].condition = Condition.unknown
+        # Create the invs in Inventory
+        for i in range(0, len(invs)):
+            invs[i].create() 
+        result = Inventory.find_by_condition(Condition.new) # Query
+        invs_list = [inv for inv in result] # Convert to list
+        self.assertEqual(len(invs_list), 1) # Should get 1 item back
+        
+        result = Inventory.find_by_condition(Condition.slightly_used) # Query
+        invs_list = [inv for inv in result] # Convert to list
+        self.assertEqual(len(invs_list), 1) # Should get 1 item back
+        
+        result = Inventory.find_by_condition(Condition.used) # Query
+        invs_list = [inv for inv in result] # Convert to list
+        self.assertEqual(len(invs_list), 1) # Should get 1 item back
+        
+        result = Inventory.find_by_condition(Condition.unknown) # Query
+        invs_list = [inv for inv in result] # Convert to list
+        self.assertEqual(len(invs_list), 1) # Should get 1 item back
