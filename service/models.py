@@ -115,17 +115,13 @@ class Inventory(db.Model):
         try:
             self.id = data["id"]
             self.name = data["name"]
-            self.condition = getattr(Condition, data["condition"])
-            if isinstance(data["quantity"], int) and data["quantity"] >= 0:
-                self.quantity = data["quantity"]
-            else:
+            self.condition = getattr(Condition, data["condition"]) # string to enmu
+            if not isinstance(data["quantity"], int) or data["quantity"] < 0:
                 raise DataValidationError("Invalid type/value for quantity [%s] [%d]" % (str(type(data["quantity"])), data["quantity"]))
-            if isinstance(data["restock_level"], int) and data["restock_level"] >= 0:
-                self.restock_level = data["restock_level"]
-            else:
+            if not isinstance(data["restock_level"], int) or data["restock_level"] < 0:
                 raise DataValidationError("Invalid type/value for restock_level [%s] [%d]" % (str(type(data["restock_level"])), data["restock_level"]))
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute: " + error.args[0])
+            self.quantity = data["quantity"]
+            self.restock_level = data["restock_level"]
         except KeyError as error:
             raise DataValidationError("Invalid Inventory record: missing " + error.args[0])
         except TypeError as error:
