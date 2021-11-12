@@ -14,7 +14,7 @@ quantity (int) - the quantity of the product
 
 """
 import logging
-from enum import Enum
+from enum import Enum, unique
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -53,7 +53,7 @@ class Inventory(db.Model):
     name = db.Column(db.String(80), nullable=False)
     condition = db.Column(
         db.Enum(Condition), nullable=False, server_default=(Condition.unknown.name)
-    )
+    ) # Unknown is the default condition
     quantity = db.Column(db.Integer, nullable=False)
     restock_level = db.Column(db.Integer, nullable=False)
     
@@ -117,9 +117,11 @@ class Inventory(db.Model):
             self.name = data["name"]
             self.condition = getattr(Condition, data["condition"]) # string to enmu
             if not isinstance(data["quantity"], int) or data["quantity"] < 0:
-                raise DataValidationError("Invalid type/value for quantity [%s] [%d]" % (str(type(data["quantity"])), data["quantity"]))
+                raise DataValidationError("Invalid type/value for quantity [%s] [%d]" % \
+                    (str(type(data["quantity"])), data["quantity"]))
             if not isinstance(data["restock_level"], int) or data["restock_level"] < 0:
-                raise DataValidationError("Invalid type/value for restock_level [%s] [%d]" % (str(type(data["restock_level"])), data["restock_level"]))
+                raise DataValidationError("Invalid type/value for restock_level [%s] [%d]" % \
+                    (str(type(data["restock_level"])), data["restock_level"]))
             self.quantity = data["quantity"]
             self.restock_level = data["restock_level"]
         except KeyError as error:
@@ -169,3 +171,45 @@ class Inventory(db.Model):
         """
         logger.info("Processing lookup for id %s ...", id)
         return cls.query.get(id)
+    
+    @classmethod
+    def find_by_name(cls, name:str) -> list:
+        """
+        Returns all Inventory with the given name
+
+        :param name: the name of the Inventory you want to match
+        :type name: str
+
+        :return: a collection of Inventory with that name
+        :rtype: list
+
+        """
+        logger.info("Processing name query for %s ...", name)
+        return cls.query.filter(cls.name == name)
+
+    @classmethod
+    def find_by_need_restock(cls) -> list:
+        """
+        Returns all of the Inventory that has quantity <= restock_level
+
+        :return: a collection of Inventory that needs restocking
+        :rtype: list
+
+        """
+        logger.info("Processing restock query ...")
+        return cls.query.filter(cls.quantity <= cls.restock_level)
+
+    @classmethod
+    def find_by_condition(cls, condition) -> list:
+        """
+        Returns all Inventory by their condition
+
+        :param condition: values are ['used', 'slight_used', 'new', 'unknown']
+        :type available: enum
+
+        :return: a collection of Inventory of given condition
+        :rtype: list
+
+        """
+        logger.info("Processing condition query for %s ...", condition.name)
+        return cls.query.filter(cls.condition == condition)
