@@ -12,8 +12,6 @@ Test cases can be run with the following:
 import logging
 import unittest
 
-from flask.json import jsonify
-
 # from urllib.parse import quote_plus
 from service import status  # HTTP Status Codes
 from service.models import db, init_db

@@ -6,11 +6,11 @@ Test cases can be run with:
     coverage report -m
 
 """
-from datetime import date
-import os
+# from datetime import date
+# import os
 import logging
 import unittest
-from werkzeug.exceptions import NotFound
+# from werkzeug.exceptions import NotFound
 from service.models import Condition, Inventory, DataValidationError, db
 from service import app
 from .factories import InventoryFactory

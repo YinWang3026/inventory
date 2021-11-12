@@ -14,7 +14,7 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 - .gitignore
   - Files to be ignored from repository
 - contributing.md
-  - Information on good coding practice
+  - Information on good coding practice that this project follows
 - requirements.txt
   - Python modules needed
 - Vagrantfile
@@ -24,7 +24,11 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 - .coveragerc
   - Used by Coverage tool
 - config.py
+  - Shared variables across the project
   - Contains config for SQL Alchemy to set up database connection
+- workflow.yml
+  - Used by Git Action to setup environment and run tests
+  - Continuous Integration
 - gunicorn.conf.py
   - Contains config for gunicorn, a HTTP server
 - Procfile

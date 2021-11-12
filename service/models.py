@@ -14,7 +14,7 @@ quantity (int) - the quantity of the product
 
 """
 import logging
-from enum import Enum, unique
+from enum import Enum
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
