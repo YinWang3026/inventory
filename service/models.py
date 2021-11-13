@@ -14,7 +14,7 @@ quantity (int) - the quantity of the product
 
 """
 import logging
-from enum import Enum, unique
+from enum import Enum
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -205,7 +205,7 @@ class Inventory(db.Model):
         Returns all Inventory by their condition
 
         :param condition: values are ['used', 'slight_used', 'new', 'unknown']
-        :type available: enum
+        :type: enum
 
         :return: a collection of Inventory of given condition
         :rtype: list

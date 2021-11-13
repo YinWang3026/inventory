@@ -20,7 +20,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 # For this example we'll use SQLAlchemy, a popular ORM that supports a
 # variety of backends including SQLite, MySQL, and PostgreSQL
 from flask_sqlalchemy import SQLAlchemy
-from service.models import Inventory, DataValidationError
+from service.models import Inventory, Condition
 
 # Import Flask application
 from . import app
@@ -47,7 +47,19 @@ def index():
 def list_inventory():
     """ Returns all of the Inventory """
     app.logger.info("Request for inventory list")
-    invs = Inventory.find_all()
+    invs = []
+    name = request.args.get("name") # Query by name
+    condition = request.args.get("condition") # Query by condition (string)
+    restock = request.args.get("restock") # Query by restock need
+    if name:
+        invs = Inventory.find_by_name(name)
+    elif condition:
+        condition_enum = getattr(Condition, condition)
+        invs = Inventory.find_by_condition(condition_enum)
+    elif restock:
+        invs = Inventory.find_by_need_restock()
+    else:
+        invs = Inventory.find_all()
     results = [inv.serialize() for inv in invs]
     app.logger.info("Returning %d invs", len(results))
     return make_response(jsonify(results), status.HTTP_200_OK)
