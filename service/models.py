@@ -205,7 +205,7 @@ class Inventory(db.Model):
         Returns all Inventory by their condition
 
         :param condition: values are ['used', 'slight_used', 'new', 'unknown']
-        :type available: enum
+        :type: enum
 
         :return: a collection of Inventory of given condition
         :rtype: list

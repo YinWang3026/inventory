@@ -12,7 +12,7 @@ Test cases can be run with the following:
 import logging
 import unittest
 
-# from urllib.parse import quote_plus
+from urllib.parse import quote_plus
 from service import status  # HTTP Status Codes
 from service.models import db, init_db
 from service.routes import app
@@ -313,3 +313,78 @@ class TestInventoryServer(unittest.TestCase):
 			content_type=CONTENT_TYPE_JSON,
 		)
 		self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+	
+	def test_query_inv_list_by_name(self):
+		"""Query Inventory by Name"""
+		invs = InventoryFactory.create_batch(4)
+		# Change inv[0],[1] name to "DevOps"
+		invs[0].name = "DevOps"
+		invs[1].name = "DevOps"
+		# Create the invs in Inventory
+		for i in range(0, len(invs)):
+			invs[i].create()
+		resp = self.app.get(
+			BASE_URL, query_string="name={}".format(quote_plus("DevOps"))
+		)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK)
+		data = resp.get_json()
+		self.assertEqual(len(data), 2) # Should get 2 items
+		for inv in data:
+			# Check the name just to be sure
+			self.assertEqual(inv["name"], "DevOps")
+	
+	def test_query_inv_list_no_name(self):
+		"""Query by name does not exist"""
+		resp = self.app.get(
+			BASE_URL, query_string="name={}".format(quote_plus("DevOps"))
+		)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK) # OK
+		data = resp.get_json()
+		self.assertTrue(isinstance(data, list)) # Should be a list
+		self.assertEqual(len(data), 0) # Should get 0 items back
+	
+	def test_query_need_restock(self):
+		"""Query inv that needs restock"""
+		invs = InventoryFactory.create_batch(4)
+		# Change inv[0],[1] quantity to below restock_level
+		# Change inv[2],[3] quantity to above restock_level
+		invs[0].quantity = 5
+		invs[0].restock_level = 10
+		invs[1].quantity = 10
+		invs[1].restock_level = 10
+		invs[2].quantity = 11
+		invs[2].restock_level = 10
+		invs[3].quantity = 12
+		invs[3].restock_level = 10
+		# Create the invs in Inventory
+		for i in range(0, len(invs)):
+			invs[i].create() 
+		resp = self.app.get(
+			BASE_URL, query_string="restock=1"
+		)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK) # OK
+		data = resp.get_json()
+		self.assertEqual(len(data), 2) # Should get 2 items back
+		for inv in data:
+			if inv["id"] == invs[0].id:
+				self.assertEqual(inv["quantity"], invs[0].quantity)
+				self.assertEqual(inv["restock_level"], invs[0].restock_level)
+			else:
+				self.assertEqual(inv["quantity"], invs[1].quantity)
+				self.assertEqual(inv["restock_level"], invs[1].restock_level)
+	
+	def test_query_by_condition(self):
+		"""Returns all inv with the condition"""
+		invs = self._create_invs(10)
+		test_condition = invs[0].condition
+		# Create a list of same condition invs
+		condition_invs = [inv for inv in invs if inv.condition == test_condition]
+		resp = self.app.get(
+			BASE_URL, query_string="condition={}".format(quote_plus(test_condition.name))
+		)
+		self.assertEqual(resp.status_code, status.HTTP_200_OK) # Ok
+		data = resp.get_json()
+		self.assertEqual(len(data), len(condition_invs)) # Should be same length
+		for inv in data:
+			# Check the condition just to be sure
+			self.assertEqual(inv["condition"], test_condition.name)
