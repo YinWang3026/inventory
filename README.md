@@ -5,6 +5,10 @@
 
 This repository contains all the work of the Inventory Squad as part of the Fall '21 DevOps under [John Rofrano](https://github.com/rofrano).
 
+## Cloud URL
+
+<https://nyu-inventory-service-fall2103.us-south.cf.appdomain.cloud/>
+
 ## To contribute, checkout [contribution.md](./contributing.md)
 
 ## File Descritions
@@ -32,7 +36,7 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 - gunicorn.conf.py
   - Contains config for gunicorn, a HTTP server
 - Procfile
-  - gunicorn config
+  - config for gunicorn server to run the app
   - Don't hardcode a port, use environment variable
   - Used by CloudFoundry and honcho to start the app
 - manifest.yml
