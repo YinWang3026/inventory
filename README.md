@@ -37,12 +37,16 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   - Contains config for gunicorn, a HTTP server
 - Procfile
   - config for gunicorn server to run the app
-  - Don't hardcode a port, use environment variable
+  - Don't hardcode a port, use environment variable (see dot-env-example)
   - Used by CloudFoundry and honcho to start the app
 - manifest.yml
   - Tells CloudFoundry how to deploy the app
 - runtime.txt
   - The environment to use for CloudFoundry
+- dot-env-example
+  - cp dot-env-example .env
+  - Adds to the environment variables
+  - PORT specifies the port that the Flask App and honcho should start on
 
 ## Running the App
 
