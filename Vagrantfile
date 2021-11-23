@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
     config.vm.hostname = "ubuntu"
   
     # set up network ip and port forwarding
-    config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
+    config.vm.network "forwarded_port", guest: 8080, host: 8080, host_ip: "127.0.0.1"
     config.vm.network "private_network", ip: "192.168.56.10"
   
     # Windows users need to change the permission of files and directories
@@ -91,7 +91,10 @@ Vagrant.configure(2) do |config|
       
       # Install app dependencies in virtual environment as vagrant user
       sudo -H -u vagrant sh -c '. ~/venv/bin/activate && pip install -U pip && pip install wheel'
-      sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt'      
+      sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt' 
+      
+      # Create .env file if it doesn't exist
+      sudo -H -u vagrant sh -c 'cd /vagrant && if [ ! -f .env ]; then cp dot-env-example .env; fi'
     SHELL
   
     ######################################################################

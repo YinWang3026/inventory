@@ -81,8 +81,6 @@ class TestInventoryServer(unittest.TestCase):
 		"""Test the Home Page"""
 		resp = self.app.get("/")
 		self.assertEqual(resp.status_code, status.HTTP_200_OK)
-		data = resp.get_json()
-		self.assertEqual(data["name"], "Inventory REST API Service")
 	
 	def test_get_inventory(self):
 		"""Get a single inventory with id"""
