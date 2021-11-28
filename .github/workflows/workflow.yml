@@ -1,14 +1,15 @@
-name: Run Python Tests
+name: Run TDD and BDD Python Tests
 on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
+  build: # Job name
     runs-on: ubuntu-latest
     # use a known build environment
     container: python:3.8-slim
@@ -30,20 +31,36 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env: # Environemnt for the job
+      DATABASE_URI: "postgres://postgres:postgres@postgres:5432/testdb"
+
     # Steps for the build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 # Uses "actions/checkout@v2" to fetch a commmit
 
       - name: Install dependencies
         run: |
+          # Chrome
+          echo "**** Installing Chrome Headless..."
+          apt-get update
+          apt-get -qq install -y chromium-driver curl > /dev/null
+          echo "Chrome driver located at:"
+          which chromedriver
+          # Python stuff
+          echo "**** Installing Python Stuff..."
           python -m pip install --upgrade pip wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run unit tests with nose
+      - name: Running TDD with nosetests
         run: nosetests
-        env:
-          DATABASE_URI: "postgres://postgres:postgres@postgres:5432/testdb"
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v2
+
+      - name: Running BDD with behave
+        run: |
+          gunicorn --log-level=critical --bind=127.0.0.1:8080 service:app & # start a Web server in the background
+          sleep 10 # give Web server some time to bind to sockets, etc
+          curl -I http://localhost:8080/  # make sure the service is up
+          behave

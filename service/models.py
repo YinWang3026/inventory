@@ -113,7 +113,7 @@ class Inventory(db.Model):
             data (dict): A dictionary containing the Inventory data
         """
         try:
-            self.id = data["id"]
+            self.id = data["id"] if "id" in data.keys() else None
             self.name = data["name"]
             self.condition = getattr(Condition, data["condition"]) # string to enmu
             if not isinstance(data["quantity"], int) or data["quantity"] < 0:
@@ -124,6 +124,8 @@ class Inventory(db.Model):
                     (str(type(data["restock_level"])), data["restock_level"]))
             self.quantity = data["quantity"]
             self.restock_level = data["restock_level"]
+        except AttributeError as error:
+            raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
             raise DataValidationError("Invalid Inventory record: missing " + error.args[0])
         except TypeError as error:

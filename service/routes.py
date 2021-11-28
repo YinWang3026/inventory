@@ -31,14 +31,15 @@ from . import app
 @app.route("/")
 def index():
     """ Root URL response """
-    return (
-        jsonify(
-            name="Inventory REST API Service",
-            version="1.0",
-            paths=url_for("list_inventory", _external=True),
-        ),
-        status.HTTP_200_OK,
-    )
+    # return (
+    #     jsonify(
+    #         name="Inventory REST API Service",
+    #         version="1.0",
+    #         paths=url_for("list_inventory", _external=True),
+    #     ),
+    #     status.HTTP_200_OK,
+    # )
+    return app.send_static_file("index.html")
 
 ######################################################################
 # LIST ALL INVENTORY
@@ -50,13 +51,13 @@ def list_inventory():
     invs = []
     name = request.args.get("name") # Query by name
     condition = request.args.get("condition") # Query by condition (string)
-    restock = request.args.get("restock") # Query by restock need
+    need_restock = request.args.get("need_restock") # Query by restock need
     if name:
         invs = Inventory.find_by_name(name)
     elif condition:
         condition_enum = getattr(Condition, condition)
         invs = Inventory.find_by_condition(condition_enum)
-    elif restock:
+    elif need_restock=="true":
         invs = Inventory.find_by_need_restock()
     else:
         invs = Inventory.find_all()
@@ -164,7 +165,7 @@ def add_stock(id):
     """
     This endpoint will increase an Inventory stock based the body that is posted
     """
-    app.logger.info("Request to add_stock with id: {}", id)
+    app.logger.info("Request to add_stock with id: {}".format(id))
     check_content_type("application/json")
     inv = Inventory.find_by_id(id)
     if not inv:
