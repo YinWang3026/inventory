@@ -10,7 +10,6 @@ import json
 import requests
 from behave import given
 from compare import expect
-from service.models import Condition
 
 @given('the following inventory')
 def step_impl(context):

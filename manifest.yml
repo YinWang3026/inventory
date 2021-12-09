@@ -7,6 +7,8 @@ applications:
     memory: 256M
     routes:
       - route: nyu-inventory-service-fall2103.us-south.cf.appdomain.cloud
+    # hostname: nyu-inventory-service-fall2103
+    # domain: us-south.cf.appdomain.cloud
     disk_quota: 1024M
     buildpacks:
       - python_buildpack

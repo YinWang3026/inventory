@@ -7,7 +7,8 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 
 ## Cloud URL
 
-<https://nyu-inventory-service-fall2103.us-south.cf.appdomain.cloud/>
+* Dev: <https://nyu-inventory-service-fall2103-dev.us-south.cf.appdomain.cloud/>
+* Prod: <https://nyu-inventory-service-fall2103.us-south.cf.appdomain.cloud/>
 
 ## To contribute, checkout [contribution.md](./contributing.md)
 
@@ -48,7 +49,7 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   - The environment to use for CloudFoundry
 - dot-env-example
   - cp dot-env-example .env
-  - Adds to the environment variables
+  - Read by Application to add to the environment variables
   - PORT specifies the port that the Flask App and honcho should start on
 - .cfignore
   - Files to be ignored from CloudFoundry
@@ -85,3 +86,12 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 - At the root of the project folder, run
 - `behave` to run all the feature tests in one terminal
 - `honcho start` to run the server in another terminal
+
+## Deploy to Cloud
+
+- Login to ibmcloud tool
+  - ibmcloud login -a https://cloud.ibm.com --apikey @~/.bluemix/apikey.json -r us-south
+- Set ibm target
+  - ic target --cf
+- Push to CloudFoundry
+  - ic cf push -n `hostname`
