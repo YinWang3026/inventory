@@ -13,8 +13,10 @@ from flask import Flask
 app = Flask(__name__)
 app.config.from_object("config") # loads config.py
 
+# Model first
 # Import the routes after the Flask app is created
-from service import routes, models, error_handlers
+# Error handler after routes (api) is created
+from service import models, routes, error_handlers
 
 # Set up logging for production
 print("Setting up logging for {}...".format(__name__))

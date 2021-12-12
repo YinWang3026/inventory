@@ -81,7 +81,7 @@ Feature: The Inventory service back-end
         Then I should see the message "Success"
         When I set the "Id" to the first item in table
         And I press the "Retrieve" button
-        Then I should see the message "404 Not Found"
+        Then I should see the message "not found"
 
     Scenario: List all Inventory
         When I visit the "Home Page"
