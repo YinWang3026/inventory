@@ -41,7 +41,7 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 - Procfile
   - config for gunicorn server to run the app
   - Don't hardcode a port, use environment variable (see dot-env-example)
-  - Used by CloudFoundry and honcho to start the app
+  - Contains start command used by CloudFoundry and honcho to start the app
 - manifest.yml
   - Tells CloudFoundry how to deploy the app
   - `ic cf push` to push the code to CloudFoundry
@@ -93,5 +93,9 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   - ibmcloud login -a https://cloud.ibm.com --apikey @~/.bluemix/apikey.json -r us-south
 - Set ibm target
   - ic target --cf
+- Create User Provided Service
+  - ic cf cups ElephantSQL-dev -p '{"url":"postgres://xxxx"}'
+  - ic cf cups ElephantSQL-prod -p '{"url":"postgres://xxxx"}'
 - Push to CloudFoundry
-  - ic cf push -n `hostname`
+  - ic cf push -f manifest-dev.yml
+  - ic cf push -f manifest-prod.yml

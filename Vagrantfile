@@ -118,8 +118,8 @@ Vagrant.configure(2) do |config|
       echo "Pausing for 60 seconds to allow PostgreSQL to initialize..."
       sleep 60
       echo "Creating test database"
+      # docker exec postgres psql -c "drop database testdb;" -U postgres
       docker exec postgres psql -c "create database testdb;" -U postgres
-      Done
     SHELL
 
     ######################################################################
