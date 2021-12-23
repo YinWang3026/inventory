@@ -53,6 +53,12 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   - PORT specifies the port that the Flask App and honcho should start on
 - .cfignore
   - Files to be ignored from CloudFoundry
+- Dockerfile
+  - Create docker image
+- .dockerignore
+  - Files to not add to the docker image
+- docker-compose.yml
+  - Run multiple docker images
 
 ## Starting the VM
 
@@ -90,12 +96,24 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 ## Deploy to Cloud
 
 - Login to ibmcloud tool
-  - ibmcloud login -a https://cloud.ibm.com --apikey @~/.bluemix/apikey.json -r us-south
+  - `ibmcloud login -a https://cloud.ibm.com --apikey @~/.bluemix/apikey.json -r us-south`
 - Set ibm target
-  - ic target --cf
+  - `ic target --cf`
 - Create User Provided Service
-  - ic cf cups ElephantSQL-dev -p '{"url":"postgres://xxxx"}'
-  - ic cf cups ElephantSQL-prod -p '{"url":"postgres://xxxx"}'
+  - `ic cf cups ElephantSQL-dev -p '{"url":"postgres://xxxx"}'`
+  - `ic cf cups ElephantSQL-prod -p '{"url":"postgres://xxxx"}'`
 - Push to CloudFoundry
-  - ic cf push -f manifest-dev.yml
-  - ic cf push -f manifest-prod.yml
+  - `ic cf push -f manifest-dev.yml`
+  - `ic cf push -f manifest-prod.yml`
+
+## Docker
+
+- Build image for our service
+  - `docker build -t inventory:latest .`
+  - Change tag if needed
+- Running the Inventory Service Image
+  - `docker run --name inventory --rm -p 8080:8080 --link postgres -e DATABASE_URI="postgres://postgres:postgres@postgres:5432/" inventory:latest`
+- Running the Postgers Image
+  - `docker run -d --name postgres --rm -p 5432:5432 -v psql_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=postgres postgres:alpine`
+- To run both images with docker compose
+  - `docker-compose up -d`

@@ -1,0 +1,35 @@
+version: "3" # Version of the docker-compose, not this file 
+
+services:
+  app:
+    build: . # Build if image not found, and name it container_name
+    image: inventory:latest
+    container_name: inventory
+    hostname: inventory
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URI: "postgres://postgres:postgres@postgres:5432/" # server://username:password@service:port/
+    depends_on:
+      - "postgres"
+    networks:
+      - web
+
+  postgres:
+    image: postgres:alpine
+    restart: always
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # If path not speicified, volume is removed when container shuts down
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+    networks:
+      - web
+
+volumes:
+  postgres-data: null # A volume name for Docker to manage
+
+networks:
+  web: null # The network to run these 2 services
