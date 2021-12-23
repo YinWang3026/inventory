@@ -1,0 +1,17 @@
+# OS metadata files
+.DS_Store
+Thumbs.db
+
+# Unwanted files
+Dockerfile
+.vagrant
+.vscode/
+.git/
+.venv/
+venv/
+.env
+.gitignore
+
+# Byte-compiled
+__pycache__/
+*.py[cod]

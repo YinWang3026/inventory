@@ -35,16 +35,16 @@ Vagrant.configure(2) do |config|
     ############################################################
     # Provider for Docker on Intel or ARM (aarch64)
     ############################################################
-    config.vm.provider :docker do |docker, override|
-      override.vm.box = nil
-      docker.image = "rofrano/vagrant-provider:ubuntu"
-      docker.remains_running = true
-      docker.has_ssh = true
-      docker.privileged = true
-      docker.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:ro"]
-      # Uncomment to force arm64 for testing images on Intel
-      # docker.create_args = ["--platform=linux/arm64"]     
-    end
+    # config.vm.provider :docker do |docker, override|
+    #   override.vm.box = nil
+    #   docker.image = "rofrano/vagrant-provider:ubuntu"
+    #   docker.remains_running = true
+    #   docker.has_ssh = true
+    #   docker.privileged = true
+    #   docker.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:ro"]
+    #   # Uncomment to force arm64 for testing images on Intel
+    #   # docker.create_args = ["--platform=linux/arm64"]     
+    # end
   
     ######################################################################
     # Copy some files to make developing easier
@@ -94,7 +94,7 @@ Vagrant.configure(2) do |config|
       
       # Install app dependencies in virtual environment as vagrant user
       sudo -H -u vagrant sh -c '. ~/venv/bin/activate && pip install -U pip && pip install wheel'
-      sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt'
+      sudo -H -u vagrant sh -c '. ~/venv/bin/activate && cd /vagrant && pip install -r requirements.txt && pip install docker-compose'
       
       # Create .env file if it doesn't exist
       sudo -H -u vagrant sh -c 'cd /vagrant && if [ ! -f .env ]; then cp dot-env-example .env; fi'
@@ -103,12 +103,11 @@ Vagrant.configure(2) do |config|
     ######################################################################
     # Add PostgreSQL docker container
     ######################################################################
-    # docker run -d --name postgres -p 5432:5432 -v psql_data:/var/lib/postgresql/data postgres
-    config.vm.provision :docker do |d|
-      d.pull_images "postgres:alpine"
-      d.run "postgres:alpine",
-         args: "-d --name postgres -p 5432:5432 -v psql_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=postgres"
-    end
+    # config.vm.provision :docker do |d|
+    #   d.pull_images "postgres:alpine"
+    #   d.run "postgres:alpine",
+    #      args: "-d --name postgres -p 5432:5432 -v psql_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=postgres"
+    # end
   
     ######################################################################
     # Add a test database after Postgres is provisioned
