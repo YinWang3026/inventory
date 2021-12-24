@@ -15,7 +15,8 @@ USER vagrant
 
 # Expose any ports the app is expecting in the environment
 ENV FLASK_APP=service:app
-ENV PORT 8080
+ENV PORT 5000 
+# PORT = 8080 w/o nginx, 5000 w/ nginx
 EXPOSE $PORT
 
 ENV GUNICORN_BIND 0.0.0.0:$PORT

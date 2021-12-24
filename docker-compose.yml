@@ -6,8 +6,12 @@ services:
     image: inventory:latest
     container_name: inventory
     hostname: inventory
-    ports:
-      - "8080:8080"
+      # ports:
+      # Expose ports. Either specify both ports (HOST:CONTAINER), or just the container port (a random host port will be chosen).
+      # - "5000:5000"
+    expose:
+      # Expose ports without publishing them to the host machine - they’ll only be accessible to linked services. Only the internal port can be specified.
+      - 5000
     environment:
       DATABASE_URI: "postgres://postgres:postgres@postgres:5432/" # server://username:password@service:port/
     depends_on:
@@ -25,6 +29,19 @@ services:
       - postgres-data:/var/lib/postgresql/data # If path not speicified, volume is removed when container shuts down
     environment:
       POSTGRES_PASSWORD: "postgres"
+    networks:
+      - web
+
+  nginx:
+    image: nginx
+    restart: always
+    hostname: nginx
+    ports:
+      # VM Port forwards 8080 to host 8080
+      # Nginx listens on 80
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - web
 

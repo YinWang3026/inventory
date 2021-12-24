@@ -117,3 +117,4 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   - `docker run -d --name postgres --rm -p 5432:5432 -v psql_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=postgres postgres:alpine`
 - To run both images with docker compose
   - `docker-compose up -d`
+  - This will also run an NGINX server
