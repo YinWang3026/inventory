@@ -47,8 +47,9 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
 # Set up the development environment
 WORKDIR /app
 COPY ../requirements.txt .
-RUN pip install -U pip wheel setuptools\
-    && pip install -r requirements.txt
+RUN pip install -U pip wheel setuptools \
+    && pip install -r requirements.txt \
+    && rm -f requirements.txt
 VOLUME [ "/var/lib/docker" ]
 
 # Become a regular user
