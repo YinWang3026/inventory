@@ -1,0 +1,63 @@
+# Dockerfile for Development
+
+version: "3"
+
+services:
+  app:
+    build: # Build if image not found, and name it container_name
+      context: .. 
+      dockerfile: .devcontainer/Dockerfile
+    container_name: inventory
+    hostname: inventory
+    init: true 
+    privileged: true
+    volumes:
+      - ..:/app
+      - ~/.gitconfig:/home/vscode/.gitconfig
+      # - ~/.ssh/:/home/vscode/.ssh/
+      - ~/.bluemix/:/home/vscode/.bluemix/
+      - dind-var-lib-docker:/var/lib/docker
+    command: sleep infinity
+    expose:
+      - 5000
+    environment:
+      FLASK_APP: service:app
+      PORT: 5000
+      DATABASE_URI: "postgres://postgres:postgres@postgres:5432/" # server://username:password@service:port/
+    depends_on:
+      - "postgres"
+    networks:
+      - web
+
+  postgres:
+    image: postgres:alpine
+    restart: always
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # If path not speicified, volume is removed when container shuts down
+    environment:
+      POSTGRES_PASSWORD: "postgres"
+    networks:
+      - web
+
+  # nginx:
+  #   image: nginx
+  #   restart: always
+  #   hostname: nginx
+  #   ports:
+  #     # VM Port forwards 8080 to host 8080
+  #     # Nginx listens on 80
+  #     - "8080:80"
+  #   volumes:
+  #     - ../nginx.conf:/etc/nginx/nginx.conf:ro
+  #   networks:
+  #     - web
+
+volumes:
+  postgres-data: null # A volume name for Docker to manage
+  dind-var-lib-docker:
+
+networks:
+  web: null # The network to run these 2 services
