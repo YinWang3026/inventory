@@ -5,7 +5,8 @@ from os import getenv
 from selenium import webdriver
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
-BASE_URL = getenv('BASE_URL', 'http://localhost:8080')
+PORT = getenv('PORT', '8080')
+BASE_URL = getenv('BASE_URL', 'http://localhost:'+PORT)
 # BDD tests against the development server
 # BASE_URL points to the development server
 # On the integration stage in the pipeline, set the base url to the dev server

@@ -59,6 +59,8 @@ This repository contains all the work of the Inventory Squad as part of the Fall
   * Files to not add to the docker image
 * docker-compose.yml
   * Run multiple docker images
+* .devcontainer
+  * Runs the project in a Docker container
 
 ## Starting the VM
 
@@ -118,3 +120,9 @@ This repository contains all the work of the Inventory Squad as part of the Fall
 * To run both images with docker compose
   * `docker-compose up -d`
   * This will also run an NGINX server
+
+## DevContainers
+
+* Windows 11 does not support VirtualBox at the moment, using Devcontainers with Docker instead
+* Simply use VS Code to open the folder in a container
+* If nosetests do not find the tests, run `chmod -x $(find tests/ -name '*.py')`
